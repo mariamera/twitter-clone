@@ -1,0 +1,1 @@
+module.exports.DEFAULT_IMAGE = '/profile-placeholder.png'
