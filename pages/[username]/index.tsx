@@ -1,7 +1,7 @@
 import { GetStaticPaths } from "next";
 import Menu from '../../src/components/Menu';
 import UserFeed from '../../src/components/user/UserFeed';
-import { getUserInfo, getUserFollowers } from '../../src/helpers/queries';
+import { getUserInfo, getUserFollowers, getUserFollowing } from '../../src/helpers/queries';
 
 const UserPage: FunctionComponent = (props) => {
 
@@ -37,9 +37,11 @@ export async function getStaticProps({ params }) {
   }
 
   const followers = await getUserFollowers(data.username);
+  
+  const following = await getUserFollowing(data.username);
 
   return {
-    props: { data: { ...data, followers: followers.size }}, // will be passed to the page component as props
+    props: { data: { ...data, followers: followers.size, following: following.size }}, // will be passed to the page component as props
   }
 }
 

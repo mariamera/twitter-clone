@@ -9,7 +9,7 @@ import AddPost from '../inputs/AddPost';
 
 export default function Feed() {
   const router = useRouter();
-  const { posts, getPosts } = usePost(10);
+  const [ posts, getPosts ] = usePost(10);
   const { currentUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const bodyRef = useRef();

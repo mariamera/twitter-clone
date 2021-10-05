@@ -1,9 +1,12 @@
+import clsx from 'clsx';
 import React, { useRef } from 'react'
 import { useAuth } from '../../context/authContext';
+import Image from 'next/image';
+import { DEFAULT_IMAGE } from '../../helpers/constants';
 
-export default function AddPost() {
+export default function AddPost({ children, style }) {
   const postRef = useRef();
-  const { addPost } = useAuth();
+  const { currentUser, addPost } = useAuth();
 
   function createPost(e) {
     e.preventDefault();
@@ -17,15 +20,20 @@ export default function AddPost() {
   }
 
   return (
-    <div className="relative mx-auto p-5 border rounded-md bg-white">
-      <div className="relative flex justify-between">
-        <h3>What are you thinking about?</h3>
+    <div className={clsx("relative mx-auto p-5 border rounded-md bg-white", style)}>
+      <div className="relative flex justify-start">
+        <div>
+          <Image src={currentUser.photoURL || DEFAULT_IMAGE} width={100} height={100} />
+        </div>
+        <div className="flex-grow mx-8">
+          <h3>What are you thinking about?</h3>
+          {children}
+          <form method="POST" onSubmit={createPost}>
+            <textarea className="w-full" ref={postRef} maxLength={200} />
+            <button type="submit" className="block ml-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Add Post</button>
+          </form>
+        </div>
       </div>
-      <form method="POST" onSubmit={createPost}>
-        <textarea className="w-full" ref={postRef} maxLength={200} />
-
-        <button type="submit" className="block mx-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Add Post</button>
-      </form>
     </div>
   )
 }

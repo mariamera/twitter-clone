@@ -13,6 +13,7 @@ export default function UserFeed({ user }) {
   const { currentUser } = useAuth();
   const [isFollowing, setIsFollowing] = useState(false);
   const [followers, setFollowers] = useState(user.followers);
+  const [following, setFollowing] = useState(user.following);
   const [connectionDocID, setFollowingDocID] = useState('');
 
   useEffect(async () => {
@@ -74,13 +75,14 @@ export default function UserFeed({ user }) {
             <div className="w-full md:w-auto md:flex md:items-end md:flex-wrap md:ml-auto transform mt-auto ">
               <h2 className="text-center mx-auto w-full text-2xl font-mono font-semibold tracking-tight">{user.displayName}</h2>
               <h3 className="text-center mx-auto w-full text-sm text-gray-400">{user.username}</h3>
-              <div className="w-full">
+              <div className="w-full flex justify-evenly">
                 <p className="font-semibold">{followers} <span className="text-gray-500 front-normal">followers</span></p>
+                <p className="font-semibold">{following} <span className="text-gray-500 front-normal">following</span></p>
               </div>
               <div>
                 {currentUser.email !== user.email &&
                   (<button
-                    className="block mx-auto bg-secondary text-white hover:bg-third text-white font-bold py-2 px-4 rounded"
+                    className="block ml-auto mt-4 bg-secondary text-white hover:bg-third text-white font-bold py-2 px-4 rounded"
                     onClick={handleFollow}
                   >
                     {isFollowing ? 'Following' : 'Follow'}

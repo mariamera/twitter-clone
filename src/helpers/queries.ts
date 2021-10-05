@@ -53,6 +53,12 @@ async function getUserFollowers(username: String) {
   return db.collection('follows').where("followeeId", "==", followeeId.val()).get();
 }
 
+async function getUserFollowing(username: String) {
+  const followeeId = await database.ref(`/usernames/${username}`).once('value', (snapshot) => (snapshot));
+
+  return db.collection('follows').where("followerId", "==", followeeId.val()).get();
+}
+
 async function getUserInfo(username: String) {
   return await database.ref('users').orderByChild('username').equalTo(username).once('value', (snapshot) => (snapshot));
 }
@@ -67,5 +73,6 @@ module.exports.getAllPost = getAllPost;
 module.exports.startFollowing = startFollowing;
 module.exports.stopFollowing = stopFollowing;
 module.exports.getUserFollowers = getUserFollowers;
+module.exports.getUserFollowing = getUserFollowing;
 module.exports.getUserInfo = getUserInfo;
 module.exports.getUserId = getUserId;
