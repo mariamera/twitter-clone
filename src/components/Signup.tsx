@@ -93,7 +93,7 @@ export default function Signup() {
             />
           </div>
           <div className="mt-4">
-            <button className="block mx-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" disabled={loading} type="submit">Sign Up</button>
+            <button className="block mx-auto bg-secondary text-white hover:bg-third font-bold py-2 px-4 rounded" disabled={loading} type="submit">Sign Up</button>
           </div>
         </form>
       </div>

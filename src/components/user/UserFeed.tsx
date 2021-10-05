@@ -65,7 +65,7 @@ export default function UserFeed({ user }) {
         <div className="min-h-full h-44 bg-gradient-to-tl from-secondary"></div>
         <div className="md:w-3/4 md:mx-auto md:-my-8">
           <div className="p-8 flex flex-wrap md:flex-nowrap bg-white md:min-h-full">
-            <div className="absolute w-full md:w-auto transform -translate-y-1/2">
+            <div className="w-auto mx-auto -mb-12 transform -translate-y-1/2 md:-mb-20">
               <Image className="max-h-40 mx-auto rounded-full border-4 border-white"
                 src={user.photoURL || DEFAULT_IMAGE}
                 height="150"

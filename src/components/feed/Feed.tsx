@@ -4,21 +4,21 @@ import { useAuth } from '../../context/authContext';
 import { useRouter } from 'next/router';
 import NewPost from '../modal/NewPost';
 import { usePost } from '../../hooks/usePosts';
+import useOnScreen from '../../hooks/useOnScreen';
 import Post from '../user/Post';
 import AddPost from '../inputs/AddPost';
 
 export default function Feed() {
+  const { currentUser } = useAuth();
   const router = useRouter();
   const [ posts, getPosts ] = usePost(10);
-  const { currentUser } = useAuth();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const bodyRef = useRef();
+  const [ isVisible, currentElement ] = useOnScreen<HTMLDivElement>(100)
 
-  useEffect(async () => {
-    setLoading(true);
-    await getPosts();
-    setLoading(false);
-  }, []);
+  useEffect(() => {
+    loadMore();
+  }, [isVisible]);
 
   if (!currentUser) {
     router.push('/login');
@@ -30,7 +30,7 @@ export default function Feed() {
     await getPosts();
     setLoading(false);
   }
-
+  console.log("posts: ", posts);
   return (
     <>
       <div ref={bodyRef} className="w-full min-h-screen relative bg-primary pt-8">
@@ -44,7 +44,7 @@ export default function Feed() {
           </div>
         )}
         <NewPost />
-        <button className="block mx-auto" onClick={loadMore}>Load More</button>
+        <button ref={currentElement} className="block mx-auto" onClick={loadMore}>Load More</button>
       </div>
     </>
   )

@@ -24,9 +24,11 @@ export const getStaticPaths: GetStaticPaths = () => {
 
 export async function getStaticProps({ params }) {
   let data;
+  let uid; 
   const Userquery = await getUserInfo(params.username);
 
   Userquery.forEach(async (child) => {
+    uid = child.key;
     data = child.val();
   });
 
@@ -36,12 +38,11 @@ export async function getStaticProps({ params }) {
     }
   }
 
-  const followers = await getUserFollowers(data.username);
-  
-  const following = await getUserFollowing(data.username);
+  const followers = uid ? await getUserFollowers(uid) : 0;
+  const following = uid ? await getUserFollowing(uid) : 0;
 
   return {
-    props: { data: { ...data, followers: followers.size, following: following.size }}, // will be passed to the page component as props
+    props: { data: { ...data, followers: followers.size, following: following.size } }, // will be passed to the page component as props
   }
 }
 

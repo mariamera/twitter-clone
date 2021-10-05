@@ -63,7 +63,7 @@ export default function LogIn() {
             />
           </div>
           <div className="w-full pt-4">
-          <button className="block mx-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700" disabled={loading} type="submit">Log In</button>
+          <button className="block mx-auto bg-secondary text-white hover:bg-third font-bold py-2 px-4 border rounded" disabled={loading} type="submit">Log In</button>
           <Link href="/forgot-password">
             <a className="block text-center pt-4">Forgot Password?</a>
           </Link>

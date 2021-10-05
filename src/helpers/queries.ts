@@ -9,10 +9,10 @@ async function findUserPosts(username) {
   return allPost ? allPost.docs.map(p => ({ ...p.data() })) : [];
 }
 
-async function getAllPost(pageSize, offsetDoc) {
+async function getAllPost(followerList, pageSize, offsetDoc) {
   let postsArray = [];
-  const posts = offsetDoc && offsetDoc.date ? await db.collection("posts").orderBy('date', 'desc').startAfter(offsetDoc.date).limit(pageSize).get()
-    : await db.collection("posts").orderBy('date', 'desc').limit(pageSize).get();
+  const posts = offsetDoc && offsetDoc.date ? await db.collection("posts").where("uid", "in", followerList).orderBy('date', 'desc').startAfter(offsetDoc.date).limit(pageSize).get()
+    : await db.collection("posts").where("uid", "in", followerList).orderBy('date', 'desc').limit(pageSize).get();
 
   if (posts.docs) {
     postsArray = await posts.docs.reduce(async (prevValue, p) => {
@@ -47,16 +47,12 @@ function stopFollowing(connectionId) {
   return db.collection('follows').doc(connectionId).delete();
 }
 
-async function getUserFollowers(username: String) {
-  const followeeId = await database.ref(`/usernames/${username}`).once('value', (snapshot) => (snapshot));
-
-  return db.collection('follows').where("followeeId", "==", followeeId.val()).get();
+async function getUserFollowers(uid: String) {
+  return db.collection('follows').where("followeeId", "==", uid).get();
 }
 
-async function getUserFollowing(username: String) {
-  const followeeId = await database.ref(`/usernames/${username}`).once('value', (snapshot) => (snapshot));
-
-  return db.collection('follows').where("followerId", "==", followeeId.val()).get();
+async function getUserFollowing(uid: String) {
+  return db.collection('follows').where("followerId", "==", uid).get();
 }
 
 async function getUserInfo(username: String) {
