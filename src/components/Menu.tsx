@@ -14,7 +14,7 @@ export default function Menu() {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full bg-white">
       <div className="flex justify-end items-center border-b-2 border-gray-100 py-6">
         <ul className="flex justify-evenly w-full">
           <li>

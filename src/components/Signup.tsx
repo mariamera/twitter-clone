@@ -17,11 +17,11 @@ export default function Signup() {
   async function handleSubmit(e) {
     e.preventDefault();
     let isUsernameExist = await checkUsername(usernameRef.current.value);
-    console.log("isUsernameExist: ", isUsernameExist)
+
     if (isUsernameExist) {
       setError('Username is already taken');
       return;
-  }
+    }
 
     if (passwordRef.current.value !== passwordConfirmationRef.current.value) {
       setError('Passwords do not match');

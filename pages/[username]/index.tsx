@@ -1,17 +1,14 @@
 import { GetStaticPaths } from "next";
-import Menu from '../../src/components/Menu';
+import Layout from '../../src/layouts/Layout'
 import UserFeed from '../../src/components/user/UserFeed';
 import { getUserInfo, getUserFollowers, getUserFollowing } from '../../src/helpers/queries';
 
 const UserPage: FunctionComponent = (props) => {
-
   return (
-    <div className="w-full">
-      <Menu />
+    <Layout >
       <UserFeed user={props.data} />
-    </div>
+    </Layout>
   )
-
 }
 
 export const getStaticPaths: GetStaticPaths = () => {
@@ -24,7 +21,7 @@ export const getStaticPaths: GetStaticPaths = () => {
 
 export async function getStaticProps({ params }) {
   let data;
-  let uid; 
+  let uid;
   const Userquery = await getUserInfo(params.username);
 
   Userquery.forEach(async (child) => {
@@ -42,7 +39,7 @@ export async function getStaticProps({ params }) {
   const following = uid ? await getUserFollowing(uid) : 0;
 
   return {
-    props: { data: { ...data, followers: followers.size, following: following.size } }, // will be passed to the page component as props
+    props: { data: { ...data, followers: followers.size, following: following.size } },
   }
 }
 

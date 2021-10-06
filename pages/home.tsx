@@ -1,13 +1,13 @@
 import Feed from '../src/components/feed/Feed';
 import Menu from '../src/components/Menu';
+import Layout from '..//src/layouts/Layout'
 
 const FeedPage: FunctionComponent = () => {
 
   return (
-    <div className="w-full">
-      <Menu />
+    <Layout>
       <Feed />
-    </div>
+    </Layout>
   )
 
 }

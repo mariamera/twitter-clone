@@ -1,14 +1,14 @@
 import { GetStaticPaths } from "next";
-import Menu from '../../src/components/Menu';
-import UserFeed from '../../src/components/user/UserFeed';
-import { getUserInfo, getUserFollowers, getUserFollowing } from '../../src/helpers/queries';
+import { getSinglePost, getUserInfo } from '../../../src/helpers/queries';
+import Layout from '../../../src/layouts/Layout';
+import Post from '../../../src/components/user/Post';
 
-const UserSinglePostPage: FunctionComponent = () => {
+const UserSinglePostPage: FunctionComponent = ({ user, post }) => {
 
   return (
-    <div className="w-full">
-    klk
-    </div>
+    <Layout>
+      <Post user={user} post={post} />
+    </Layout>
   )
 
 }
@@ -21,28 +21,23 @@ export const getStaticPaths: GetStaticPaths = () => {
 };
 
 
-// export async function getStaticProps({ params }) {
-//   let data;
-//   let uid; 
-//   const Userquery = await getUserInfo(params.username);
+export async function getStaticProps({ params }) {
+  const doc = await getSinglePost(params.id);
+  const user = await getUserInfo(params.username);
+  let data = {};
 
-//   Userquery.forEach(async (child) => {
-//     uid = child.key;
-//     data = child.val();
-//   });
+  user.forEach(child => data['user'] = child.val());
+  doc.forEach(d => data['post'] = d.data());
 
-//   if (!data) {
-//     return {
-//       notFound: true,
-//     }
-//   }
+  if (!data) {
+    return {
+      notFound: true,
+    }
+  }
 
-//   const followers = uid ? await getUserFollowers(uid) : 0;
-//   const following = uid ? await getUserFollowing(uid) : 0;
-
-//   return {
-//     props: { data: { ...data, followers: followers.size, following: following.size } }, // will be passed to the page component as props
-//   }
-// }
+  return {
+    props: { ...data },
+  }
+}
 
 export default UserSinglePostPage;

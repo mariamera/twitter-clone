@@ -34,6 +34,10 @@ async function getAllPost(followerList, pageSize, offsetDoc) {
 
 }
 
+async function getSinglePost(postId: string) {
+  return db.collection('posts').where('postID', '==', postId).get();
+}
+
 async function startFollowing(followerId: String, username: String) {
   const followeeId = await database.ref(`/usernames/${username}`).once('value', (snapshot) => (snapshot));
 
@@ -66,6 +70,7 @@ async function getUserId(username: String) {
 
 module.exports.findUserPosts = findUserPosts;
 module.exports.getAllPost = getAllPost;
+module.exports.getSinglePost = getSinglePost;
 module.exports.startFollowing = startFollowing;
 module.exports.stopFollowing = stopFollowing;
 module.exports.getUserFollowers = getUserFollowers;

@@ -30,13 +30,13 @@ export default function Feed() {
     await getPosts();
     setLoading(false);
   }
-  console.log("posts: ", posts);
+
   return (
     <>
-      <div ref={bodyRef} className="w-full min-h-screen relative bg-primary pt-8">
+      <div ref={bodyRef} className="w-full relative bg-primary pt-8">
         <div className="w-3/4 mx-auto">
           <AddPost />
-          {posts && posts.map((p, index) => <Post key={index} user={p.user} date={p.post.date} text={p.post.text} />)}
+          {posts && posts.map((p, index) => <Post key={index} user={p.user} post={p.post} />)}
         </div>
         {loading && (
           <div className="flex justify-center">

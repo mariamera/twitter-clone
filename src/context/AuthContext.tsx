@@ -89,7 +89,8 @@ export function AuthProvider({ children }) {
       text: postText,
       date: Date.now(),
       uid: currentUser.uid,
-      comments: []
+      comments: [],
+      postID: `${Math.round(Date.now() + Math.random())}`
     });
   }
 

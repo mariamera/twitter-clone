@@ -60,8 +60,7 @@ export default function UserFeed({ user }) {
   }, [user]);
 
   return (
-    <>
-      <div className="w-full min-h-screen bg-primary">
+      <div className="w-full bg-primary">
         <div className="min-h-full h-44 bg-gradient-to-tl from-secondary"></div>
         <div className="md:w-3/4 md:mx-auto md:-my-8">
           <div className="p-8 flex flex-wrap md:flex-nowrap bg-white md:min-h-full">
@@ -91,11 +90,10 @@ export default function UserFeed({ user }) {
             </div>
           </div>
           <div>
-            {post.map((p, index) => <Post key={index} user={user} date={p.date} text={p.text} />)}
+            {post.map((p, index) => <Post key={index} user={user} post={post[index]} />)}
           </div>
         </div>
         <NewPost />
       </div>
-    </>
   )
 }
