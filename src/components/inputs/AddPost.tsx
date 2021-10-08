@@ -1,10 +1,11 @@
 import clsx from 'clsx';
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { useAuth } from '../../context/authContext';
 import Image from 'next/image';
 import { DEFAULT_IMAGE } from '../../helpers/constants';
 
 export default function AddPost({ children, style }) {
+  const [disableBtn , setDisableBtn ] = useState(true);
   const postRef = useRef();
   const { currentUser, addPost } = useAuth();
 
@@ -18,7 +19,7 @@ export default function AddPost({ children, style }) {
       console.log("error: ", error);
     }
   }
-
+console.log("disableBtn: ", disableBtn);
   return (
     <div className={clsx("relative mx-auto p-5 border rounded-md bg-white", style)}>
       <div className="relative flex justify-start">

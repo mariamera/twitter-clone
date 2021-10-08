@@ -1,13 +1,12 @@
 import { GetStaticPaths } from "next";
-import { getSinglePost, getUserInfo } from '../../../src/helpers/queries';
+import { getSinglePost, getUserInfoByUsername } from '../../../src/helpers/queries';
 import Layout from '../../../src/layouts/Layout';
 import Post from '../../../src/components/user/Post';
 
-const UserSinglePostPage: FunctionComponent = ({ user, post }) => {
-
+const UserSinglePostPage: FunctionComponent = (props) => {
   return (
     <Layout>
-      <Post user={user} post={post} />
+      <Post user={props.user} post={props.post} />
     </Layout>
   )
 
@@ -23,13 +22,13 @@ export const getStaticPaths: GetStaticPaths = () => {
 
 export async function getStaticProps({ params }) {
   const doc = await getSinglePost(params.id);
-  const user = await getUserInfo(params.username);
+  const user = await getUserInfoByUsername(params.username);
   let data = {};
 
   user.forEach(child => data['user'] = child.val());
   doc.forEach(d => data['post'] = d.data());
 
-  if (!data) {
+  if (!data || !data['post']) {
     return {
       notFound: true,
     }

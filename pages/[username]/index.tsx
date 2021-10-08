@@ -1,7 +1,7 @@
 import { GetStaticPaths } from "next";
 import Layout from '../../src/layouts/Layout'
 import UserFeed from '../../src/components/user/UserFeed';
-import { getUserInfo, getUserFollowers, getUserFollowing } from '../../src/helpers/queries';
+import { getUserInfoByUsername, getUserFollowers, getUserFollowing } from '../../src/helpers/queries';
 
 const UserPage: FunctionComponent = (props) => {
   return (
@@ -22,7 +22,7 @@ export const getStaticPaths: GetStaticPaths = () => {
 export async function getStaticProps({ params }) {
   let data;
   let uid;
-  const Userquery = await getUserInfo(params.username);
+  const Userquery = await getUserInfoByUsername(params.username);
 
   Userquery.forEach(async (child) => {
     uid = child.key;

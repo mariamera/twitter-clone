@@ -1,4 +1,5 @@
 import { database, db } from './firebase';
+import { getHeapSnapshot } from 'v8';
 
 async function findUserPosts(username) {
   let posts = [];
@@ -34,6 +35,10 @@ async function getAllPost(followerList, pageSize, offsetDoc) {
 
 }
 
+function subscribePost(followerList: Array<any>, pageSize: number) {
+  return db.collection("posts").where("uid", "in", followerList).orderBy('date', 'desc').limit(pageSize)
+}
+
 async function getSinglePost(postId: string) {
   return db.collection('posts').where('postID', '==', postId).get();
 }
@@ -45,6 +50,26 @@ async function startFollowing(followerId: String, username: String) {
     followerId,
     followeeId: followeeId.val()
   })
+}
+
+function addLike(postId, uid) {
+  return db.collection('likes').add({
+    postId,
+    userid: uid
+  })
+}
+
+async function checkPostLikes(postId) {
+  return await db.collection('likes').where('postId', "==", postId).get();
+}
+
+async function userLikedPost(postId, uid) {
+  const doc = await db.collection('likes').where('postId', "==", postId).where("userid", "==", uid).get();
+  return doc.size;
+}
+
+function userDisLikedPost(likeId) {
+  return db.collection('likes').doc(likeId).delete();
 }
 
 function stopFollowing(connectionId) {
@@ -59,8 +84,12 @@ async function getUserFollowing(uid: String) {
   return db.collection('follows').where("followerId", "==", uid).get();
 }
 
-async function getUserInfo(username: String) {
+async function getUserInfoByUsername(username: String) {
   return await database.ref('users').orderByChild('username').equalTo(username).once('value', (snapshot) => (snapshot));
+}
+
+async function getUserInfoById(uid: String) {
+  return await database.ref(`users/${uid}`).once('value', (snapshot) => (snapshot));
 }
 
 async function getUserId(username: String) {
@@ -68,12 +97,22 @@ async function getUserId(username: String) {
 }
 
 
+// Post queries
 module.exports.findUserPosts = findUserPosts;
 module.exports.getAllPost = getAllPost;
+module.exports.subscribePost = subscribePost;
 module.exports.getSinglePost = getSinglePost;
+module.exports.addLike = addLike;
+module.exports.checkPostLikes = checkPostLikes;
+module.exports.userDisLikedPost = userDisLikedPost;
+module.exports.userLikedPost = userLikedPost;
+// Following Queries
 module.exports.startFollowing = startFollowing;
 module.exports.stopFollowing = stopFollowing;
 module.exports.getUserFollowers = getUserFollowers;
 module.exports.getUserFollowing = getUserFollowing;
-module.exports.getUserInfo = getUserInfo;
+
+//User Questies
+module.exports.getUserInfoByUsername = getUserInfoByUsername;
+module.exports.getUserInfoById = getUserInfoById;
 module.exports.getUserId = getUserId;

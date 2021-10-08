@@ -17,7 +17,7 @@ export default function Feed() {
   const [ isVisible, currentElement ] = useOnScreen<HTMLDivElement>(100)
 
   useEffect(() => {
-    loadMore();
+    // loadMore();
   }, [isVisible]);
 
   if (!currentUser) {
