@@ -1,20 +1,22 @@
 import CircularProgress from '@material-ui/core/CircularProgress';
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useContext } from 'react'
 import { useAuth } from '../../context/authContext';
 import { useRouter } from 'next/router';
 import NewPost from '../modal/NewPost';
-import { usePost } from '../../hooks/usePosts';
+// import { usePost } from '../../hooks/usePosts';
 import useOnScreen from '../../hooks/useOnScreen';
 import Post from '../user/Post';
 import AddPost from '../inputs/AddPost';
+import { usePost } from '../../context/postContext';
 
 export default function Feed() {
   const { currentUser } = useAuth();
+  const { posts , getPosts } = usePost();
   const router = useRouter();
-  const [ posts, getPosts ] = usePost(10);
+  // const [posts, getPosts] = usePost(10);
   const [loading, setLoading] = useState(false);
   const bodyRef = useRef();
-  const [ isVisible, currentElement ] = useOnScreen<HTMLDivElement>(100)
+  const [isVisible, currentElement] = useOnScreen<HTMLDivElement>(100)
 
   useEffect(() => {
     // loadMore();
@@ -22,6 +24,7 @@ export default function Feed() {
 
   if (!currentUser) {
     router.push('/login');
+
     return (<></>);
   }
 

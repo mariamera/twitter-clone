@@ -3,6 +3,7 @@ import Image from 'next/image';
 import NewPost from '../modal/NewPost';
 import { findUserPosts, startFollowing, stopFollowing, getUserId } from '../../helpers/queries';
 import { useAuth } from '../../context/authContext';
+import { usePost } from '../../context/postContext';
 import Post from './Post';
 import { db } from '../../helpers/firebase';
 import { DEFAULT_IMAGE } from '../../helpers/constants';
@@ -10,6 +11,7 @@ import { DEFAULT_IMAGE } from '../../helpers/constants';
 export default function UserFeed({ user }) {
   const [post, setPost] = useState([]);
   const [error, setError] = useState('');
+  const { fetchPost } = usePost();
   const { currentUser } = useAuth();
   const [isFollowing, setIsFollowing] = useState(false);
   const [followers, setFollowers] = useState(user.followers);
@@ -30,6 +32,7 @@ export default function UserFeed({ user }) {
         setFollowers(v => v - 1);
       } else {
         await startFollowing(currentUser.uid, user.username);
+        fetchPost();
         setIsFollowing(true)
         setFollowers(v => v + 1);
       }

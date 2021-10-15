@@ -1,5 +1,3 @@
-import Link from 'next/link';
-import { AuthProvider } from '../src/context/authContext';
 import ForgotPassword from '../src/components/ForgotPassword';
 
 const ForgotPasswordPage: FunctionComponent = () => {

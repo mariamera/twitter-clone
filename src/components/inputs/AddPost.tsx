@@ -19,7 +19,7 @@ export default function AddPost({ children, style }) {
       console.log("error: ", error);
     }
   }
-console.log("disableBtn: ", disableBtn);
+
   return (
     <div className={clsx("relative mx-auto p-5 border rounded-md bg-white", style)}>
       <div className="relative flex justify-start">

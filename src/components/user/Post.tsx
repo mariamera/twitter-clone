@@ -15,6 +15,12 @@ export default function Post({ user, post }) {
   const [numberOfLikes, serNumberOfLikes] = useState(false);
   const [likeDocID, setLikeDocID] = useState("");
 
+  const belongsToCurrentUser = ( currentUser, postAuthor ) => {
+    if ( !currentUser ) return false;
+
+    return currentUser.email === postAuthor.email;
+  }
+
   async function manageLike() {
     try {
       if ( isLiked ) {
@@ -34,6 +40,7 @@ export default function Post({ user, post }) {
       return;
     }
   }
+
   useEffect(async () => {
     try {
       const like = await checkPostLikes(post.postID);
@@ -77,6 +84,8 @@ export default function Post({ user, post }) {
               <span className="pr-2">{numberOfLikes}</span> 
               {isLiked ? <FavoriteIcon /> : <FavoriteBorderIcon/>}
             </button>
+
+            {belongsToCurrentUser ? "hola": "adios"}
           </div>
         </div>
 

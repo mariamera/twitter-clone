@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react'
 import { auth, database , db } from '../helpers/firebase';
 
-const AuthContext = React.createContext(null)
+const AuthContext = React.createContext(null);
 
 export function useAuth() {
   return useContext(AuthContext);

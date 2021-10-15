@@ -1,17 +1,10 @@
 import React, { useRef, useState } from 'react'
-import { useAuth } from '../context/authContext';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 
 export default function Menu() {
   const router = useRouter();
-  const { currentUser, logout } = useAuth();
-
-  if (!currentUser) {
-    router.push('/login');
-    return (<></>);
-  }
 
   return (
     <div className="w-full bg-white">
