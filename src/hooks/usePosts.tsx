@@ -34,7 +34,7 @@ export function usePost(pageSize: number) {
 
     setFollowingList(currentFollowing);
 
-    const unsubscribe = subscribePost(currentFollowing, pageSize).onSnapshot(async snap => {
+    const unsubscribe = subscribePost(currentFollowing,pageSize).onSnapshot(async snap => {
       const data = await Promise.all(snap.docs.map(async doc => {
         const info = doc.data()
         const user = await getUserInfoById(info.uid)

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import Link from 'next/link';
 import Image from 'next/image';
 import NewPost from '../modal/NewPost';
 import { findUserPosts, startFollowing, stopFollowing, getUserId } from '../../helpers/queries';
@@ -11,7 +12,7 @@ import { DEFAULT_IMAGE } from '../../helpers/constants';
 export default function UserFeed({ user }) {
   const [post, setPost] = useState([]);
   const [error, setError] = useState('');
-  const { fetchPost } = usePost();
+  const { resetPost } = usePost();
   const { currentUser } = useAuth();
   const [isFollowing, setIsFollowing] = useState(false);
   const [followers, setFollowers] = useState(user.followers);
@@ -28,11 +29,12 @@ export default function UserFeed({ user }) {
     try {
       if (isFollowing) {
         await stopFollowing(connectionDocID)
+        resetPost();
         setIsFollowing(false);
         setFollowers(v => v - 1);
       } else {
         await startFollowing(currentUser.uid, user.username);
-        fetchPost();
+        resetPost();
         setIsFollowing(true)
         setFollowers(v => v + 1);
       }
@@ -82,13 +84,23 @@ export default function UserFeed({ user }) {
                 <p className="font-semibold">{following} <span className="text-gray-500 front-normal">following</span></p>
               </div>
               <div>
-                {currentUser.email !== user.email &&
+                {currentUser.email !== user.email ?
                   (<button
                     className="block ml-auto mt-4 bg-secondary text-white hover:bg-third text-white font-bold py-2 px-4 rounded"
                     onClick={handleFollow}
                   >
                     {isFollowing ? 'Following' : 'Follow'}
-                  </button>)}
+                  </button>) : 
+                  (
+                    <Link href={`/profile`}>
+                      <a
+                      className="block ml-auto mt-4 bg-secondary text-white hover:bg-third text-white font-bold py-2 px-4 rounded"
+                      >
+                        Edit Profile
+                      </a>
+                    </Link>
+                  )
+                }
               </div>
             </div>
           </div>

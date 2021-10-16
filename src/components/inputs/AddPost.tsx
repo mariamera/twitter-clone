@@ -14,6 +14,7 @@ export default function AddPost({ children, style }) {
 
     try {
       addPost(postRef.current.value);
+      console.log("reset Pst");
       postRef.current.value = '';
     } catch (error) {
       console.log("error: ", error);
@@ -27,11 +28,10 @@ export default function AddPost({ children, style }) {
           <Image src={currentUser.photoURL || DEFAULT_IMAGE} width={100} height={100} />
         </div>
         <div className="flex-grow mx-8">
-          <h3>What are you thinking about?</h3>
           {children}
           <form method="POST" onSubmit={createPost}>
-            <textarea className="w-full" ref={postRef} maxLength={200} />
-            <button type="submit" className="block ml-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Add Post</button>
+            <textarea placeholder="What are you thinking about?" className="w-full" ref={postRef} maxLength={200} />
+            <button type="submit" className="block ml-auto bg-secondary hover:bg-third  text-white font-bold py-2 px-4 rounded">Add Post</button>
           </form>
         </div>
       </div>

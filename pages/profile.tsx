@@ -1,4 +1,4 @@
-import Profile from '../src/components/Profile';
+import Profile from '../src/components/Profile/Profile';
 import Menu from '../src/components/Menu';
 
 const Home: FunctionComponent = () => {

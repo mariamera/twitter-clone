@@ -1,6 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-// import { database } from '../helpers/firebase';
-import { getAllPost, getUserFollowing, subscribePost, getUserInfoById } from '../helpers/queries';
+import { getAllPost, getUserFollowing, subscribePost, getUserInfoById , getSinglePost} from '../helpers/queries';
 import { useAuth } from "./authContext";
 
 const PostContext = React.createContext({});
@@ -18,17 +17,54 @@ export function PostProvider({ value, children }) {
 
   const pageSize = 10;
 
-  async function fetchPost() {
-    // let userFollowingList = [];
-    console.log("fetchingg....");
-    // const following = await getUserFollowing(currentUser.uid);
+  async function addFollow(newFollowindId: string) {
+    setCurrentFollowing(prev => [...prev, newFollowindId]);
+    await resetPost();
 
-    // if (following.size) {
-    //   userFollowingList = [currentUser.uid, ...ids];
-
-    // }
   }
 
+  async function removeFollow(followindId: string) {
+    setCurrentFollowing(prev => prev.filter(id => id !== followindId))
+    await resetPost();
+  }
+
+  const resetPost = async () => {
+    const following = await getUserFollowing(currentUser.uid);
+    let ids = following.docs.map(follow => follow.data().followeeId);
+    const userFollowingList = [currentUser.uid, ...ids];
+
+    if (userFollowingList) {
+      const followersSnapShot = await getAllPost(userFollowingList, pageSize);
+
+      if (followersSnapShot.length) {
+        setOffset(followersSnapShot[followersSnapShot.length - 1].post);
+        setPosts([...followersSnapShot]);
+        console.log("[...followersSnapShot: ", [...followersSnapShot]);
+      }
+    }
+
+    setCurrentFollowing(userFollowingList);
+  };
+
+  async function getParentPost(parentPostId) {
+    const parentPost = await getSinglePost(parentPostId);
+
+    if (parentPost && parentPost.docs.length === 1) {
+      const parentPostData = parentPost.docs[0].data();
+      const user = await getUserInfoById(parentPostData.uid);
+      return {
+        post: parentPostData,
+        user: user.val()
+      };
+
+    }
+
+    return {
+      post: {},
+      user: {}
+    }
+  } 
+  
   const getPosts = async () => {
     if (currentFollowing.length) {
       const followersSnapShot = await getAllPost(currentFollowing, pageSize, offset);
@@ -65,7 +101,7 @@ export function PostProvider({ value, children }) {
           }
         }))
 
-        if ( data.length ) {
+        if (data.length) {
           setOffset(data[data.length - 1].post);
           setPosts((prevState) => [...data]);
         }
@@ -75,20 +111,22 @@ export function PostProvider({ value, children }) {
       });
 
       return unsubscribe;
-    } 
+    }
 
     setLoading(false);
   }, []);
 
   const postValue = {
     posts,
-    fetchPost,
-    getPosts
+    addFollow,
+    getPosts,
+    resetPost,
+    getParentPost
   };
 
 
   return (
-    <PostContext.Provider value={{...value, ...postValue}} >
+    <PostContext.Provider value={{ ...value, ...postValue }} >
       {!loading && children}
     </PostContext.Provider >
   )

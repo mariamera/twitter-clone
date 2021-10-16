@@ -1,5 +1,4 @@
 import { database, db } from './firebase';
-import { getHeapSnapshot } from 'v8';
 
 async function findUserPosts(username) {
   let posts = [];
@@ -41,6 +40,29 @@ function subscribePost(followerList: Array<any>, pageSize: number) {
 
 async function getSinglePost(postId: string) {
   return db.collection('posts').where('postID', '==', postId).get();
+}
+
+async function getCommentsFromPost(postID: String) {
+  let postsArray = [];
+  const posts = await db.collection("posts").where("parentId", "==", postID).orderBy('date', 'desc').get();
+
+  if (posts.docs) {
+    postsArray = await posts.docs.reduce(async (prevValue, p) => {
+      const accum = await prevValue;
+      const currentPost = p.data();
+      const user = await database.ref(`/users/${currentPost.uid}`).once('value', (snapshot) => (snapshot));
+
+      accum.push({
+        user: user.val(),
+        post: currentPost
+      })
+
+      return accum;
+
+    }, Promise.resolve([]));
+  }
+
+  return postsArray;
 }
 
 async function startFollowing(followerId: String, username: String) {
@@ -96,7 +118,6 @@ async function getUserId(username: String) {
   return await database.ref(`/usernames/${username}`).once('value', (snapshot) => (snapshot))
 }
 
-
 // Post queries
 module.exports.findUserPosts = findUserPosts;
 module.exports.getAllPost = getAllPost;
@@ -106,6 +127,8 @@ module.exports.addLike = addLike;
 module.exports.checkPostLikes = checkPostLikes;
 module.exports.userDisLikedPost = userDisLikedPost;
 module.exports.userLikedPost = userLikedPost;
+module.exports.getCommentsFromPost = getCommentsFromPost;
+
 // Following Queries
 module.exports.startFollowing = startFollowing;
 module.exports.stopFollowing = stopFollowing;

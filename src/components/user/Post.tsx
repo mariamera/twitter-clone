@@ -1,54 +1,26 @@
 import clsx from 'clsx';
 import React, { useEffect, useState } from 'react'
-import Image from 'next/image';
-import Link from 'next/link';
-import FavoriteIcon from '@material-ui/icons/Favorite';
-import FavoriteBorderIcon from "@material-ui/icons/FavoriteBorder";
-import { DEFAULT_IMAGE } from '../../helpers/constants';
-import setDate from '../../helpers/date';
-import { useAuth } from '../../context/authContext';
-import { addLike, checkPostLikes, userLikedPost , userDisLikedPost} from '../../helpers/queries';
+import PostData from './PostData';
+import { usePost } from '../../context/postContext';
 
-export default function Post({ user, post }) {
-  const { currentUser } = useAuth();
-  const [isLiked, setIsLiked] = useState(false);
-  const [numberOfLikes, serNumberOfLikes] = useState(false);
-  const [likeDocID, setLikeDocID] = useState("");
+import {
+  getSinglePost,
+  getUserInfoById
+} from '../../helpers/queries';
 
-  const belongsToCurrentUser = ( currentUser, postAuthor ) => {
-    if ( !currentUser ) return false;
-
-    return currentUser.email === postAuthor.email;
-  }
-
-  async function manageLike() {
-    try {
-      if ( isLiked ) {
-        await userDisLikedPost(likeDocID);
-        setIsLiked(false);
-        setLikeDocID('');
-        serNumberOfLikes(prev => prev - 1);
-      }else {
-        const like = await addLike(post.postID, currentUser.uid);
-        const id = await like.get()
-        setLikeDocID(id.id);
-        setIsLiked(true);
-        serNumberOfLikes(prev => prev + 1);
-      }
-    } catch (error) {
-      console.log("error: ", error);
-      return;
-    }
-  }
+export default function Post({ user, post, showParentText = false }) {
+  const [parentTweet, setParentTweet] = useState({});
+  const { getParentPost } = usePost();
 
   useEffect(async () => {
     try {
-      const like = await checkPostLikes(post.postID);
-      serNumberOfLikes(like.size);
-      setLikeDocID(like.docs[0] && like.docs[0].id);
+      if (showParentText && post.parentId) {
+        const parentPost = await getParentPost(post.parentId);
 
-      const checkLike = await userLikedPost(post.postID, currentUser.uid);
-      setIsLiked(!!checkLike);
+        setParentTweet(parentPost);
+        return;
+      }
+      setParentTweet({});
     } catch (err) {
       console.log("err: ", err);
 
@@ -58,37 +30,13 @@ export default function Post({ user, post }) {
 
   return (
     <>
-      <div className="flex flex-wrap w-full p-4 my-2 border border-gray-200 rounded-lg hover:bg-gray-200 bg-white">
-        <div>
-          <Link href={`/${user.username}`}>
-            <a>
-              <Image className="rounded-full border-white" src={user.photoURL || DEFAULT_IMAGE} height="75" width="75" alt={`${user.username} profile picture`} />
-            </a>
-          </Link>
-
-        </div>
-        <div className="px-4">
-          <Link href={`/${user.username}/status/${post.postID}`}>
-            <a className="flex-auto">
-              <h4 className="font-bold text-lg">{user.displayName}
-                <span className="font-normal color-gray-400 text-sm px-1">{user.username}</span>
-              </h4>
-              <span className="text-sm color-secondary">{setDate(post.date)}</span>
-              <div className="w-full">
-                {post.text}
-              </div>
-            </a>
-          </Link>
-          <div className="z-10">
-            <button onClick={manageLike} disabled={!currentUser} className={"text-secondary flex"}>
-              <span className="pr-2">{numberOfLikes}</span> 
-              {isLiked ? <FavoriteIcon /> : <FavoriteBorderIcon/>}
-            </button>
-
-            {belongsToCurrentUser ? "hola": "adios"}
-          </div>
-        </div>
-
+      <div className={clsx("relative flex flex-wrap w-full rounded-lg bg-white", showParentText && "px-4 my-2 border border-gray-200")}>
+        {parentTweet.user && parentTweet.post && showParentText && (
+          <>
+            <PostData user={parentTweet.user} post={parentTweet.post} />
+            <div className="absolute h-1/2 top-16 border-l border-primary transform translate-x-8 left-8" />
+          </>)}
+        <PostData user={user} post={post} />
       </div>
     </>
   )

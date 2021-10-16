@@ -1,7 +1,9 @@
 import React, { useRef, useState } from 'react'
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-
+import PersonOutlineOutlinedIcon from '@material-ui/icons/PersonOutlineOutlined';
+import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
+import HomeIcon from '@material-ui/icons/Home';
 
 export default function Menu() {
   const router = useRouter();
@@ -12,15 +14,24 @@ export default function Menu() {
         <ul className="flex justify-evenly w-full">
           <li>
             <Link href="/home">
-              <a>
+              <a className="flex aling-center">
+              <HomeIcon className="fill-current text-green-600 mr-2" />
                 Home
               </a>
             </Link>
           </li>
           <li>
+            <Link href="/home">
+              <a className="flex aling-center">
+              <NotificationsNoneIcon className="fill-current text-green-600 mr-2" />
+                Notifications
+              </a>
+            </Link>
+          </li>
+          <li>
             <Link href="/profile">
-              <a>
-                Profile
+              <a className="flex aling-center">
+               <PersonOutlineOutlinedIcon className="fill-current text-green-600 mr-2" /> Profile
               </a>
             </Link>
           </li>

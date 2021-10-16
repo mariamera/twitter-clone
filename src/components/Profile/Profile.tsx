@@ -1,18 +1,22 @@
 import React, { useRef, useState } from 'react'
-import { useAuth } from '../context/authContext';
 import { useRouter } from 'next/router';
 import Image from 'next/image'
-import { storage } from '../helpers/firebase';
-import ErrorModal from './modal/ErrorModal';
-import SuccessModal from './modal/SuccessModal';
-import { DEFAULT_IMAGE } from '../helpers/constants';
+import { uploadImageToFirebase } from '../../helpers/images';
+import ErrorModal from '../modal/ErrorModal';
+import SuccessModal from '../modal/SuccessModal';
+import { useAuth } from '../../context/authContext';
+import { usePost } from '../../context/postContext';
+import { DEFAULT_IMAGE } from '../../helpers/constants';
 
 export default function Profile() {
   const router = useRouter();
   const { currentUser, logout } = useAuth();
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const { resetPost } = usePost();
   const { updateProfilePicture, updateUserProfile } = useAuth();
+  const [loading, setLoading] = useState(false);
+
   const getFile = useRef();
   const diplayNameRef = useRef();
 
@@ -27,36 +31,33 @@ export default function Profile() {
     }
   }
 
-  function uploadImage(e) {
+  async function uploadImage(e) {
     setMessage('');
     setError('');
 
     const files = event.target.files;
     if (files.length === 1) {
+      setLoading(true);
       const file = files[0];
-      const storageRef = storage.ref(currentUser.email + '/profilePicture/profilepic');
-      return storageRef.put(file).then(snapshot => {
-        snapshot.ref.getDownloadURL().then(async url => {
-          if (url) {
-            try {
-              await updateProfilePicture(url);
-              setMessage("Image uploaded successfully");
-            } catch (e) {
-              setError("ups something went wrong");
-            }
-          }
-        })
-      });
+      try {
+        const url = await uploadImageToFirebase(currentUser.email, file);
+        await updateProfilePicture(url);
+        setMessage("Image uploaded successfully");
+
+      } catch (error) {
+        // setError(error);
+      }
     }
   }
 
-  function updateUserPro(e) {
+  async function updateUserPro(e) {
     e.preventDefault();
     setMessage('');
     setError('');
 
     try {
-      updateUserProfile(diplayNameRef.current.value);
+      await updateUserProfile(diplayNameRef.current.value);
+      await resetPost();
       setMessage('Information updated Successfully');
     } catch (error) {
       setError(error);
@@ -73,10 +74,10 @@ export default function Profile() {
 
   return (
     <>
-      <div className="bg-white shadow overflow-hidden sm:rounded-lg p-8 w-full">
+      <div className="bg-white shadow overflow-hidden sm:rounded-lg p-8 w-full font-serif">
         <h2>Profile</h2>
-        <ErrorModal errorMsg={error}/>
-        <SuccessModal succMessage={message}/>
+        <ErrorModal errorMsg={error} />
+        <SuccessModal succMessage={message} />
         <div className="flex">
           <div className="w-3/12">
             <div>
@@ -86,15 +87,16 @@ export default function Profile() {
               </button>
             </div>
           </div>
-          <div className="flex-auto p-6">
+          <div className="flex-auto p-6 leading-loose">
             <form method="POST" onSubmit={updateUserPro}>
+              <div>Email:</div>
               <div>{currentUser.email}</div>
-              <div className="flex content-between">
-                <div>Name:</div>
-                <input ref={diplayNameRef} defaultValue={currentUser.displayName}/>
+              <div className="">
+                <div>Display Name:</div>
+                <input className="block border border-gray-400 rounded-md px-4" ref={diplayNameRef} defaultValue={currentUser.displayName} />
               </div>
               <div className="w-full">
-                <button>Update Profile</button>
+                <button className="block mx-auto my-4 bg-secondary text-white hover:bg-third text-white font-bold py-2 px-4 border border-secondary">Update Profile</button>
               </div>
             </form>
             <button onClick={handleLogout}>Log Out</button>

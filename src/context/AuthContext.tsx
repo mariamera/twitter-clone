@@ -94,6 +94,26 @@ export function AuthProvider({ children }) {
     });
   }
 
+  async function addReply(postText: String, parentId: String) {
+    await db.collection("posts").add({
+      text: postText,
+      date: Date.now(),
+      uid: currentUser.uid,
+      parentId: parentId,
+      postID: `${Math.round(Date.now() + Math.random())}`
+    });
+  }
+
+  async function deletePost(postId: string) {
+   const doc = await db.collection("posts").where("postID", "==", postId).get();
+   
+    if (doc.docs && doc.docs.length === 1) {
+      await doc.docs[0].ref.delete();
+    }
+
+    return;
+  }
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(user => {
       setCurrentUser(user);
@@ -114,7 +134,9 @@ export function AuthProvider({ children }) {
     updatePassword,
     updateProfilePicture,
     checkUsername,
-    addPost
+    addPost,
+    addReply,
+    deletePost
   };
 
   return (
