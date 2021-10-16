@@ -39,7 +39,6 @@ export function PostProvider({ value, children }) {
       if (followersSnapShot.length) {
         setOffset(followersSnapShot[followersSnapShot.length - 1].post);
         setPosts([...followersSnapShot]);
-        console.log("[...followersSnapShot: ", [...followersSnapShot]);
       }
     }
 
@@ -77,6 +76,9 @@ export function PostProvider({ value, children }) {
   };
 
   useEffect(async () => {
+    console.log("subscribe postContext?");
+    let unsubscribe;
+
     if (currentUser) {
       let userFollowingList: Array<String> = [];
 
@@ -91,7 +93,7 @@ export function PostProvider({ value, children }) {
       }
 
 
-      const unsubscribe = subscribePost(userFollowingList, pageSize).onSnapshot(async snap => {
+      unsubscribe = subscribePost(userFollowingList, pageSize).onSnapshot(async snap => {
         const data = await Promise.all(snap.docs.map(async doc => {
           const info = doc.data()
           const user = await getUserInfoById(info.uid)
@@ -110,7 +112,7 @@ export function PostProvider({ value, children }) {
         setLoading(false);
       });
 
-      return unsubscribe;
+      return () => unsubscribe();
     }
 
     setLoading(false);

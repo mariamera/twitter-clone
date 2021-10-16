@@ -31,7 +31,6 @@ export default function AddComment({ postID }) {
               type="text"
               placeholder="Tweet your Reply"
             />
-
             <button type="submit" className="mt-4 block ml-auto bg-secondary hover:bg-third  text-white font-bold py-2 px-4 rounded">
               Reply
             </button>

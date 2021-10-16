@@ -1,29 +1,38 @@
 import { database, db } from './firebase';
+import { POST_COLLECTION_NAME } from './constants';
 
 async function findUserPosts(username) {
   let posts = [];
   let uid = await database.ref(`/usernames/${username}`).once('value', (snapshot) => (snapshot));
-  const allPost = await db.collection("posts").where("uid", "==", uid.val()).orderBy('date', 'desc').get();
+  const allPost = await db.collection(POST_COLLECTION_NAME).where("uid", "==", uid.val()).where("parentId", "==", null).orderBy('date', 'desc').get();
 
-  // returns array of objects (tweets)
   return allPost ? allPost.docs.map(p => ({ ...p.data() })) : [];
 }
 
 async function getAllPost(followerList, pageSize, offsetDoc) {
   let postsArray = [];
-  const posts = offsetDoc && offsetDoc.date ? await db.collection("posts").where("uid", "in", followerList).orderBy('date', 'desc').startAfter(offsetDoc.date).limit(pageSize).get()
-    : await db.collection("posts").where("uid", "in", followerList).orderBy('date', 'desc').limit(pageSize).get();
+  const posts = offsetDoc && offsetDoc.date ? await db.collection(POST_COLLECTION_NAME).where("uid", "in", followerList).orderBy('date', 'desc').startAfter(offsetDoc.date).limit(pageSize).get()
+    : await db.collection(POST_COLLECTION_NAME).where("uid", "in", followerList).orderBy('date', 'desc').limit(pageSize).get();
 
   if (posts.docs) {
     postsArray = await posts.docs.reduce(async (prevValue, p) => {
       const accum = await prevValue;
       const currentPost = p.data();
-      const user = await database.ref(`/users/${currentPost.uid}`).once('value', (snapshot) => (snapshot));
 
-      accum.push({
-        user: user.val(),
-        post: currentPost
-      })
+      const userAlreadyFetched = accum.find(current => current.user && current.user.uid === currentPost.uid);
+      if (userAlreadyFetched) {
+
+        accum.push({
+          user: userAlreadyFetched,
+          post: currentPost
+        })
+      } else {
+        const user = await database.ref(`/users/${currentPost.uid}`).once('value', (snapshot) => (snapshot));
+        accum.push({
+          user: { uid: user.key, ...user.val()},
+          post: currentPost
+        })
+      }
 
       return accum;
 
@@ -35,16 +44,16 @@ async function getAllPost(followerList, pageSize, offsetDoc) {
 }
 
 function subscribePost(followerList: Array<any>, pageSize: number) {
-  return db.collection("posts").where("uid", "in", followerList).orderBy('date', 'desc').limit(pageSize)
+  return db.collection(POST_COLLECTION_NAME).where("uid", "in", followerList).orderBy('date', 'desc').limit(pageSize)
 }
 
 async function getSinglePost(postId: string) {
-  return db.collection('posts').where('postID', '==', postId).get();
+  return db.collection(POST_COLLECTION_NAME).where('postID', '==', postId).get();
 }
 
 async function getCommentsFromPost(postID: String) {
   let postsArray = [];
-  const posts = await db.collection("posts").where("parentId", "==", postID).orderBy('date', 'desc').get();
+  const posts = await db.collection(POST_COLLECTION_NAME).where("parentId", "==", postID).orderBy('date', 'desc').get();
 
   if (posts.docs) {
     postsArray = await posts.docs.reduce(async (prevValue, p) => {
@@ -65,12 +74,10 @@ async function getCommentsFromPost(postID: String) {
   return postsArray;
 }
 
-async function startFollowing(followerId: String, username: String) {
-  const followeeId = await database.ref(`/usernames/${username}`).once('value', (snapshot) => (snapshot));
-
+async function startFollowing(followerId: String, followeeId: String) {
   return db.collection('follows').add({
     followerId,
-    followeeId: followeeId.val()
+    followeeId
   })
 }
 
@@ -81,9 +88,14 @@ function addLike(postId, uid) {
   })
 }
 
-async function checkPostLikes(postId) {
+async function checkPostLikes(postId: string) {
   return await db.collection('likes').where('postId', "==", postId).get();
 }
+
+async function checkPostComment(postId: string) {
+  return await db.collection(POST_COLLECTION_NAME).where('parentId', "==", postId).get();
+}
+
 
 async function userLikedPost(postId, uid) {
   const doc = await db.collection('likes').where('postId', "==", postId).where("userid", "==", uid).get();
@@ -128,6 +140,7 @@ module.exports.checkPostLikes = checkPostLikes;
 module.exports.userDisLikedPost = userDisLikedPost;
 module.exports.userLikedPost = userLikedPost;
 module.exports.getCommentsFromPost = getCommentsFromPost;
+module.exports.checkPostComment = checkPostComment;
 
 // Following Queries
 module.exports.startFollowing = startFollowing;

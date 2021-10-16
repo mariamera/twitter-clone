@@ -8,29 +8,33 @@ import Avatar from '../Avatar/Avatar';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import FavoriteBorderIcon from "@material-ui/icons/FavoriteBorder";
 import DeleteIcon from '@material-ui/icons/Delete';
+import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
 
 import {
   addLike,
   checkPostLikes,
   userLikedPost,
   userDisLikedPost,
+  checkPostComment
 } from '../../helpers/queries';
 
 interface Props {
   user: Object
   post: Object
+  showParentText: Boolean
 }
 
-export default function PostData({ user, post }: Props): ReactElement {
+export default function PostData({ user, post, showParentText = false }: Props): ReactElement {
   const { currentUser, deletePost } = useAuth();
   const [isLiked, setIsLiked] = useState(false);
-  const [numberOfLikes, serNumberOfLikes] = useState(false);
+  const [numberOfLikes, setNumberOfLikes] = useState(0);
+  const [numberOfComments, setNumberOfComments] = useState(0);
   const [likeDocID, setLikeDocID] = useState("");
 
   function belongsToCurrentUser(currentUser, postAuthor) {
     if (!currentUser) return false;
 
-    return currentUser.email === postAuthor.email;
+    return currentUser.uid === postAuthor.uid;
   }
 
   async function deleteThisPost() {
@@ -47,13 +51,13 @@ export default function PostData({ user, post }: Props): ReactElement {
         await userDisLikedPost(likeDocID);
         setIsLiked(false);
         setLikeDocID('');
-        serNumberOfLikes(prev => prev - 1);
+        setNumberOfLikes(prev => prev - 1);
       } else {
         const like = await addLike(post.postID, currentUser.uid);
         const id = await like.get()
         setLikeDocID(id.id);
         setIsLiked(true);
-        serNumberOfLikes(prev => prev + 1);
+        setNumberOfLikes(prev => prev + 1);
       }
     } catch (error) {
       console.log("error: ", error);
@@ -64,12 +68,16 @@ export default function PostData({ user, post }: Props): ReactElement {
   useEffect(async () => {
     try {
       const like = await checkPostLikes(post.postID);
-      serNumberOfLikes(like.size);
+      setNumberOfLikes(like.size);
       setLikeDocID(like.docs[0] && like.docs[0].id);
 
       const checkLike = await userLikedPost(post.postID, currentUser.uid);
       setIsLiked(!!checkLike);
 
+      const comments = await checkPostComment(post.postID);
+
+      setNumberOfComments(comments.size);
+  
     } catch (err) {
       console.log("err: ", err);
 
@@ -78,7 +86,7 @@ export default function PostData({ user, post }: Props): ReactElement {
   }, []);
 
   return (
-    <div className="relative flex flex-wrap w-full p-4 my-2 hover:bg-gray-200">
+    <div className={clsx("relative flex flex-wrap w-full p-4 my-2 hover:bg-gray-200", !showParentText && "border-t")}>
       <div>
         <Link href={`/${user.username}`}>
           <a>
@@ -98,14 +106,18 @@ export default function PostData({ user, post }: Props): ReactElement {
             </div>
           </a>
         </Link>
-        <div className="z-10">
-          <button onClick={manageLike} disabled={!currentUser} className={"text-secondary flex"}>
+        <div className="z-10 flex">
+          <button disabled={!currentUser} className={"text-secondary flex mx-2"}>
+          <span className="pr-2">{numberOfComments}</span>
+            <ChatBubbleOutlineIcon/>
+          </button>
+          <button onClick={manageLike} disabled={!currentUser} className={"text-secondary flex mx-2"}>
             <span className="pr-2">{numberOfLikes}</span>
             {isLiked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
           </button>
           {belongsToCurrentUser(currentUser, user) && <button className="absolute top-4 right-4" onClick={deleteThisPost}> <DeleteIcon /> </button>}
         </div>
       </div>
-    </div>
+    </ div>
   )
 }

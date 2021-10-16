@@ -1,8 +1,7 @@
 import clsx from 'clsx';
 import React, { useRef, useState } from 'react'
 import { useAuth } from '../../context/authContext';
-import Image from 'next/image';
-import { DEFAULT_IMAGE } from '../../helpers/constants';
+import Avatar from '../Avatar/Avatar';
 
 export default function AddPost({ children, style }) {
   const [disableBtn , setDisableBtn ] = useState(true);
@@ -25,7 +24,7 @@ export default function AddPost({ children, style }) {
     <div className={clsx("relative mx-auto p-5 border rounded-md bg-white", style)}>
       <div className="relative flex justify-start">
         <div>
-          <Image src={currentUser.photoURL || DEFAULT_IMAGE} width={100} height={100} />
+          <Avatar userPhoto={currentUser.photoURL}  altText={`your profile picture`}/>
         </div>
         <div className="flex-grow mx-8">
           {children}

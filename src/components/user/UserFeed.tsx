@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link';
-import Image from 'next/image';
 import NewPost from '../modal/NewPost';
-import { findUserPosts, startFollowing, stopFollowing, getUserId } from '../../helpers/queries';
+import { findUserPosts, startFollowing, stopFollowing } from '../../helpers/queries';
 import { useAuth } from '../../context/authContext';
 import { usePost } from '../../context/postContext';
 import Post from './Post';
 import { db } from '../../helpers/firebase';
-import { DEFAULT_IMAGE } from '../../helpers/constants';
+import Avatar from '../Avatar/Avatar';
 
 export default function UserFeed({ user }) {
   const [post, setPost] = useState([]);
@@ -33,7 +32,7 @@ export default function UserFeed({ user }) {
         setIsFollowing(false);
         setFollowers(v => v - 1);
       } else {
-        await startFollowing(currentUser.uid, user.username);
+        await startFollowing(currentUser.uid, user.uid);
         resetPost();
         setIsFollowing(true)
         setFollowers(v => v + 1);
@@ -46,12 +45,11 @@ export default function UserFeed({ user }) {
   useEffect(() => {
     if (user) {
       async function checkFollowing() {
-        const uid = await getUserId(user.username);
         const result = await
           db
             .collection('follows')
             .where('followerId', '==', currentUser.uid)
-            .where('followeeId', '==', uid.val())
+            .where('followeeId', '==', user.uid)
             .get();
 
         if (result.size === 1) {
@@ -70,11 +68,7 @@ export default function UserFeed({ user }) {
         <div className="md:w-3/4 md:mx-auto md:-my-8">
           <div className="p-8 flex flex-wrap md:flex-nowrap bg-white md:min-h-full">
             <div className="w-auto mx-auto -mb-12 transform -translate-y-1/2 md:-mb-20">
-              <Image className="max-h-40 mx-auto rounded-full border-4 border-white"
-                src={user.photoURL || DEFAULT_IMAGE}
-                height="150"
-                width="150"
-              />
+              <Avatar altText={`${user.username} profile picture`} userPhoto={user.photoURL} size={{ height: "150", width: "150"}}/>
             </div>
             <div className="w-full md:w-auto md:flex md:items-end md:flex-wrap md:ml-auto transform mt-auto ">
               <h2 className="text-center mx-auto w-full text-2xl font-mono font-semibold tracking-tight">{user.displayName}</h2>
@@ -84,7 +78,7 @@ export default function UserFeed({ user }) {
                 <p className="font-semibold">{following} <span className="text-gray-500 front-normal">following</span></p>
               </div>
               <div>
-                {currentUser.email !== user.email ?
+                {currentUser.uid !== user.uid ?
                   (<button
                     className="block ml-auto mt-4 bg-secondary text-white hover:bg-third text-white font-bold py-2 px-4 rounded"
                     onClick={handleFollow}
@@ -105,7 +99,7 @@ export default function UserFeed({ user }) {
             </div>
           </div>
           <div>
-            {post.map((p, index) => <Post key={index} user={user} post={post[index]} />)}
+            {post.map((p, index) => <Post key={index} user={user} post={post[index]}/>)}
           </div>
         </div>
         <NewPost />

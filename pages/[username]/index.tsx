@@ -39,7 +39,7 @@ export async function getStaticProps({ params }) {
   const following = uid ? await getUserFollowing(uid) : 0;
 
   return {
-    props: { data: { ...data, followers: followers.size, following: following.size } },
+    props: { data: { ...data, uid, followers: followers.size, following: following.size } },
   }
 }
 

@@ -89,7 +89,7 @@ export function AuthProvider({ children }) {
       text: postText,
       date: Date.now(),
       uid: currentUser.uid,
-      comments: [],
+      parentId: null,
       postID: `${Math.round(Date.now() + Math.random())}`
     });
   }
@@ -115,12 +115,13 @@ export function AuthProvider({ children }) {
   }
 
   useEffect(() => {
+    console.log("subscribee");
     const unsubscribe = auth.onAuthStateChanged(user => {
       setCurrentUser(user);
       setLoading(false);
     });
 
-    return unsubscribe;
+    return () => unsubscribe();
   }, []);
 
   const value = {

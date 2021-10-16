@@ -1,13 +1,15 @@
 import Profile from '../src/components/Profile/Profile';
-import Menu from '../src/components/Menu';
+import Layout from '../src/layouts/Layout';
+import { PostProvider } from '../src/context/postContext';
 
 const Home: FunctionComponent = () => {
 
   return (
-    <div className="w-full">
-      <Menu />
-      <Profile />
-    </div>
+    <PostProvider>
+      <Layout>
+        <Profile />
+      </Layout>
+    </PostProvider>
   )
 
 }

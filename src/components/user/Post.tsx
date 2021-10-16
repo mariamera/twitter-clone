@@ -30,13 +30,13 @@ export default function Post({ user, post, showParentText = false }) {
 
   return (
     <>
-      <div className={clsx("relative flex flex-wrap w-full rounded-lg bg-white", showParentText && "px-4 my-2 border border-gray-200")}>
+      <div className={clsx("relative flex flex-wrap w-full bg-white", showParentText && "px-4 my-2 border border-gray-200 rounded-lg")}>
         {parentTweet.user && parentTweet.post && showParentText && (
           <>
-            <PostData user={parentTweet.user} post={parentTweet.post} />
+            <PostData user={parentTweet.user} post={parentTweet.post} showParentText={showParentText}/>
             <div className="absolute h-1/2 top-16 border-l border-primary transform translate-x-8 left-8" />
           </>)}
-        <PostData user={user} post={post} />
+        <PostData user={user} post={post} showParentText={showParentText}/>
       </div>
     </>
   )
