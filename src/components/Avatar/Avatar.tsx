@@ -13,6 +13,6 @@ interface Props {
 
 export default function Avatar({ altText, userPhoto, size = {} }: Props): ReactElement {
   return (
-    <Image className="rounded-full border-white z-10" src={userPhoto || DEFAULT_IMAGE} height={size.height || "75"} width={size.width || "75"} alt={`${altText} profile picture`} />
+    <Image className="rounded-full border-white z-10" src={userPhoto || DEFAULT_IMAGE} height={size.height || "50"} width={size.width || "50"} alt={`${altText} profile picture`} />
   )
 }

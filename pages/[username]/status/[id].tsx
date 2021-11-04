@@ -1,7 +1,7 @@
 import { GetStaticPaths } from "next";
 import { getSinglePost, getUserInfoByUsername } from '../../../src/helpers/queries';
 import Layout from '../../../src/layouts/Layout';
-import Post from '../../../src/components/user/Post';
+import Post from '../../../src/components/Posts/Post';
 import AddComment from '../../../src/components/inputs/AddComment';
 import Comments from '../../../src/components/comments/Comments';
 

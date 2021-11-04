@@ -4,7 +4,7 @@ import NewPost from '../modal/NewPost';
 import { findUserPosts, startFollowing, stopFollowing } from '../../helpers/queries';
 import { useAuth } from '../../context/authContext';
 import { usePost } from '../../context/postContext';
-import Post from './Post';
+import Post from '../Posts/Post';
 import { db } from '../../helpers/firebase';
 import Avatar from '../Avatar/Avatar';
 

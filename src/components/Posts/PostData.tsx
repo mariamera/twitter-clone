@@ -4,6 +4,7 @@ import Link from 'next/link';
 import setDate from '../../helpers/date';
 import { useAuth } from '../../context/authContext';
 import Avatar from '../Avatar/Avatar';
+import DeletedPost from './DeletedPost';
 
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import FavoriteBorderIcon from "@material-ui/icons/FavoriteBorder";
@@ -66,12 +67,21 @@ export default function PostData({ user, post, showParentText = false }: Props):
   }
 
   useEffect(async () => {
+    if (!Object.keys(post).length) return;
+
     try {
       const like = await checkPostLikes(post.postID);
       setNumberOfLikes(like.size);
       setLikeDocID(like.docs[0] && like.docs[0].id);
 
-      const checkLike = await userLikedPost(post.postID, currentUser.uid);
+      let checkLike;
+      if ( like.docs[0] ) {
+        checkLike = like.docs.find(val =>{
+          const x = val.data();
+         return  x.userid === currentUser.uid;
+        })
+
+      }
       setIsLiked(!!checkLike);
 
       const comments = await checkPostComment(post.postID);
@@ -85,8 +95,14 @@ export default function PostData({ user, post, showParentText = false }: Props):
     }
   }, []);
 
+  if (Object.keys(post).length === 0) {
+    return (
+      <DeletedPost/>
+    )
+  }
+
   return (
-    <div className={clsx("relative flex flex-wrap w-full p-4 my-2 hover:bg-gray-200", !showParentText && "border-t")}>
+    <div className={clsx("relative flex flex-wrap w-full p-4 hover:bg-gray-200", !showParentText && "border-t my-0")}>
       <div>
         <Link href={`/${user.username}`}>
           <a>
@@ -94,14 +110,14 @@ export default function PostData({ user, post, showParentText = false }: Props):
           </a>
         </Link>
       </div>
-      <div className="px-4 flex-auto">
+      <div style={{flex: "1 1 0"}} className="px-4 flex-grow-0">
         <Link href={`/${user.username}/status/${post.postID}`}>
           <a className="flex-auto">
             <h4 className="font-bold text-lg">{user.displayName}
               <span className="font-normal color-gray-400 text-sm px-1">{user.username}</span>
             </h4>
             <span className="text-sm color-secondary">{setDate(post.date)}</span>
-            <div className="w-full">
+            <div className="w-full mb-4">
               {post.text}
             </div>
           </a>

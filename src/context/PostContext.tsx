@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { getAllPost, getUserFollowing, subscribePost, getUserInfoById , getSinglePost} from '../helpers/queries';
+import { getAllPost, getUserFollowing, subscribePost, getUserInfoById , getSinglePost, getCommentsFromPost} from '../helpers/queries';
 import { useAuth } from "./authContext";
 
 const PostContext = React.createContext({});
@@ -8,9 +8,10 @@ export function usePost() {
   return useContext(PostContext);
 }
 
-export function PostProvider({ value, children }) {
+export function PostProvider({ children }) {
   const [offset, setOffset] = useState();
   const [posts, setPosts] = useState([]);
+  const [userList, setUserList] = useState([]);
   const [currentFollowing, setCurrentFollowing] = useState([]);
   const { currentUser } = useAuth();
   const [loading, setLoading] = useState(true)
@@ -26,6 +27,12 @@ export function PostProvider({ value, children }) {
   async function removeFollow(followindId: string) {
     setCurrentFollowing(prev => prev.filter(id => id !== followindId))
     await resetPost();
+  }
+
+  async function getComments(postID: string) {
+    const commentsList = await getCommentsFromPost(postID);
+
+    return commentsList;
   }
 
   const resetPost = async () => {
@@ -46,16 +53,19 @@ export function PostProvider({ value, children }) {
   };
 
   async function getParentPost(parentPostId) {
-    const parentPost = await getSinglePost(parentPostId);
-
-    if (parentPost && parentPost.docs.length === 1) {
-      const parentPostData = parentPost.docs[0].data();
-      const user = await getUserInfoById(parentPostData.uid);
-      return {
-        post: parentPostData,
-        user: user.val()
-      };
-
+    if ( parentPostId ) {
+      const parentPost = await getSinglePost(parentPostId);
+  
+      if (parentPost && !parentPost.empty && parentPost.docs.length === 1) {
+        const parentPostData = parentPost.docs[0].data();
+        if ( parentPostData.uid) {
+          const user = await getUserInfoById(parentPostData.uid);
+          return {
+            post: parentPostData,
+            user: { uid: user.key, ...user.val()},
+          };
+        }
+      }
     }
 
     return {
@@ -94,11 +104,12 @@ export function PostProvider({ value, children }) {
 
 
       unsubscribe = subscribePost(userFollowingList, pageSize).onSnapshot(async snap => {
+        const users = [];
         const data = await Promise.all(snap.docs.map(async doc => {
           const info = doc.data()
-          const user = await getUserInfoById(info.uid)
+          const user = await getUserInfoById(info.uid);
           return {
-            user: user.val(),
+            user: { uid: user.key, ...user.val()},
             post: info
           }
         }))
@@ -123,12 +134,13 @@ export function PostProvider({ value, children }) {
     addFollow,
     getPosts,
     resetPost,
-    getParentPost
+    getParentPost,
+    getComments
   };
 
 
   return (
-    <PostContext.Provider value={{ ...value, ...postValue }} >
+    <PostContext.Provider value={postValue} >
       {!loading && children}
     </PostContext.Provider >
   )

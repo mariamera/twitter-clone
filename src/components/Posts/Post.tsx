@@ -3,14 +3,10 @@ import React, { useEffect, useState } from 'react'
 import PostData from './PostData';
 import { usePost } from '../../context/postContext';
 
-import {
-  getSinglePost,
-  getUserInfoById
-} from '../../helpers/queries';
-
 export default function Post({ user, post, showParentText = false }) {
   const [parentTweet, setParentTweet] = useState({});
   const { getParentPost } = usePost();
+
 
   useEffect(async () => {
     try {
@@ -30,11 +26,11 @@ export default function Post({ user, post, showParentText = false }) {
 
   return (
     <>
-      <div className={clsx("relative flex flex-wrap w-full bg-white", showParentText && "px-4 my-2 border border-gray-200 rounded-lg")}>
+      <div className={clsx("relative flex flex-wrap w-full bg-white", showParentText && "mt-4 border border-gray-200 rounded-lg")}>
         {parentTweet.user && parentTweet.post && showParentText && (
           <>
             <PostData user={parentTweet.user} post={parentTweet.post} showParentText={showParentText}/>
-            <div className="absolute h-1/2 top-16 border-l border-primary transform translate-x-8 left-8" />
+            <div className="absolute h-1/2 top-16 border-l border-secondary transform translate-x-2 left-8" />
           </>)}
         <PostData user={user} post={post} showParentText={showParentText}/>
       </div>

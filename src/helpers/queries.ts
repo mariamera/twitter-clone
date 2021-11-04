@@ -21,13 +21,13 @@ async function getAllPost(followerList, pageSize, offsetDoc) {
 
       const userAlreadyFetched = accum.find(current => current.user && current.user.uid === currentPost.uid);
       if (userAlreadyFetched) {
-
         accum.push({
-          user: userAlreadyFetched,
+          user: userAlreadyFetched.user,
           post: currentPost
         })
       } else {
-        const user = await database.ref(`/users/${currentPost.uid}`).once('value', (snapshot) => (snapshot));
+        const user = await getUserInfoById(currentPost.uid)
+
         accum.push({
           user: { uid: user.key, ...user.val()},
           post: currentPost
@@ -126,10 +126,6 @@ async function getUserInfoById(uid: String) {
   return await database.ref(`users/${uid}`).once('value', (snapshot) => (snapshot));
 }
 
-async function getUserId(username: String) {
-  return await database.ref(`/usernames/${username}`).once('value', (snapshot) => (snapshot))
-}
-
 // Post queries
 module.exports.findUserPosts = findUserPosts;
 module.exports.getAllPost = getAllPost;
@@ -151,4 +147,3 @@ module.exports.getUserFollowing = getUserFollowing;
 //User Questies
 module.exports.getUserInfoByUsername = getUserInfoByUsername;
 module.exports.getUserInfoById = getUserInfoById;
-module.exports.getUserId = getUserId;

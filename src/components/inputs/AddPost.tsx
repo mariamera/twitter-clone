@@ -3,7 +3,7 @@ import React, { useRef, useState } from 'react'
 import { useAuth } from '../../context/authContext';
 import Avatar from '../Avatar/Avatar';
 
-export default function AddPost({ children, style }) {
+export default function AddPost({ children, style, onClick }) {
   const [disableBtn , setDisableBtn ] = useState(true);
   const postRef = useRef();
   const { currentUser, addPost } = useAuth();
@@ -13,8 +13,8 @@ export default function AddPost({ children, style }) {
 
     try {
       addPost(postRef.current.value);
-      console.log("reset Pst");
       postRef.current.value = '';
+      if ( onClick) onClick();
     } catch (error) {
       console.log("error: ", error);
     }

@@ -4,7 +4,7 @@ import { useAuth } from '../../context/authContext';
 import { useRouter } from 'next/router';
 import NewPost from '../modal/NewPost';
 import useOnScreen from '../../hooks/useOnScreen';
-import Post from '../user/Post';
+import Post from '../Posts/Post';
 import AddPost from '../inputs/AddPost';
 import { usePost } from '../../context/postContext';
 
@@ -14,11 +14,6 @@ export default function Feed() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const bodyRef = useRef();
-  const [isVisible, currentElement] = useOnScreen<HTMLDivElement>(100)
-
-  useEffect(() => {
-    loadMore();
-  }, [isVisible]);
 
   if (!currentUser) {
     router.push('/login');
@@ -45,7 +40,7 @@ export default function Feed() {
           </div>
         )}
         <NewPost />
-        <button ref={currentElement} className="block mx-auto" onClick={loadMore}>Load More</button>
+        <button className="block mx-auto" onClick={loadMore}>Load More</button>
       </div>
     </>
   )

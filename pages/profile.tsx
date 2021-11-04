@@ -1,15 +1,13 @@
 import Profile from '../src/components/Profile/Profile';
+import Menu from '../src/components/Menu';
 import Layout from '../src/layouts/Layout';
-import { PostProvider } from '../src/context/postContext';
 
 const Home: FunctionComponent = () => {
 
   return (
-    <PostProvider>
-      <Layout>
-        <Profile />
-      </Layout>
-    </PostProvider>
+    <Layout>
+      <Profile />
+    </Layout>
   )
 
 }

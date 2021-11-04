@@ -10,6 +10,7 @@ export default function AddComment({ postID }) {
     e.preventDefault()
     try {
       addReply(commentRef.current.value, postID);
+      commentRef.current.value = '';
     } catch(e) {
       console.log(e)
     }
