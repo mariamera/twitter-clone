@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react'
 import AdSense from 'react-adsense';
-import { useAuth } from '../../context/authContext';
+import { useAuth } from '../../context/AuthContext';
 import { useRouter } from 'next/router';
 import NewPost from '../modal/NewPost';
 import useOnScreen from '../../hooks/useOnScreen';
 import Post from '../Posts/Post';
 import AddPost from '../inputs/AddPost';
-import { usePost } from '../../context/postContext';
+import { usePost } from '../../context/PostContext';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 export default function Feed() {

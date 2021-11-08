@@ -1,0 +1,23 @@
+{
+  "rules": {
+    // ".read": true,
+    // ".write": true,
+    
+    "users": {
+      ".write" : "auth != null",
+    	".read": true,
+      "username": {
+        ".validate": "!root.child('usernames').child(newData.val()).exists() == false"
+      },
+      "$uid" : {
+        ".write" : "auth != null && auth.uid == $uid",
+     		".indexOn" : ["username", "displayName"]
+  		 }
+    },
+    
+    "usernames": {
+      ".write" : true,
+    	".read": true  
+    }
+  }
+}

@@ -8,7 +8,7 @@ async function findUserPosts(username: String) {
   return allPost ? allPost.docs.map(p => ({ ...p.data() })) : [];
 }
 
-async function getAllPost(followerList, pageSize: Number, offsetDoc) {
+async function getAllPost(followerList: [], pageSize: Number, offsetDoc) {
   let postsArray = [];
   const posts = offsetDoc && offsetDoc.date ? await db.collection(POST_COLLECTION_NAME).where("uid", "in", followerList).orderBy('date', 'desc').startAfter(offsetDoc.date).limit(pageSize).get()
     : await db.collection(POST_COLLECTION_NAME).where("uid", "in", followerList).orderBy('date', 'desc').limit(pageSize).get();
@@ -18,7 +18,7 @@ async function getAllPost(followerList, pageSize: Number, offsetDoc) {
       const accum = await prevValue;
       const currentPost = p.data();
 
-      const userAlreadyFetched = accum.find(current => current.user && current.user.uid === currentPost.uid);
+      const userAlreadyFetched = accum.find((current: { user: { uid: string} }) => current.user && current.user.uid === currentPost.uid);
       if (userAlreadyFetched) {
         accum.push({
           user: userAlreadyFetched.user,
@@ -28,7 +28,7 @@ async function getAllPost(followerList, pageSize: Number, offsetDoc) {
         const user = await getUserInfoById(currentPost.uid)
 
         accum.push({
-          user: { uid: user.key, ...user.val()},
+          user: { uid: user.key, ...user.val() },
           post: currentPost
         })
       }
@@ -53,7 +53,6 @@ async function getSinglePost(postId: string) {
 async function getCommentsFromPost(postIDArray: Array<any>) {
   let postsArray = [];
   if (postIDArray.length) {
-    console.log("postIDArray: ", postIDArray);
     postsArray = await postIDArray.reduce(async (prevValue, p) => {
       const accum = await prevValue;
       const currentPost = p.data();
@@ -79,7 +78,7 @@ async function startFollowing(followerId: String, followeeId: String) {
   })
 }
 
-function addLike(postId, uid) {
+function addLike(postId: string, uid: string) {
   return db.collection('likes').add({
     postId,
     userid: uid
@@ -104,7 +103,7 @@ function userDisLikedPost(likeId: string) {
   return db.collection('likes').doc(likeId).delete();
 }
 
-function stopFollowing(connectionId : string) {
+function stopFollowing(connectionId: string) {
   return db.collection('follows').doc(connectionId).delete();
 }
 
@@ -124,24 +123,25 @@ async function getUserInfoById(uid: String) {
   return await database.ref(`users/${uid}`).once('value', (snapshot) => (snapshot));
 }
 
-// Post queries
-module.exports.findUserPosts = findUserPosts;
-module.exports.getAllPost = getAllPost;
-module.exports.subscribePost = subscribePost;
-module.exports.getSinglePost = getSinglePost;
-module.exports.addLike = addLike;
-module.exports.checkPostLikes = checkPostLikes;
-module.exports.userDisLikedPost = userDisLikedPost;
-module.exports.userLikedPost = userLikedPost;
-module.exports.getCommentsFromPost = getCommentsFromPost;
-module.exports.checkPostComment = checkPostComment;
+export {
+  //User Questies
+  getUserInfoByUsername,
+  getUserInfoById,
+  // Post queries
+  findUserPosts,
+  getAllPost,
+  subscribePost,
+  getSinglePost,
+  addLike,
+  checkPostLikes,
+  userDisLikedPost,
+  userLikedPost,
+  getCommentsFromPost,
+  checkPostComment,
+  // Following Queries
+  startFollowing,
+  stopFollowing,
+  getUserFollowers,
+  getUserFollowing,
+};
 
-// Following Queries
-module.exports.startFollowing = startFollowing;
-module.exports.stopFollowing = stopFollowing;
-module.exports.getUserFollowers = getUserFollowers;
-module.exports.getUserFollowing = getUserFollowing;
-
-//User Questies
-module.exports.getUserInfoByUsername = getUserInfoByUsername;
-module.exports.getUserInfoById = getUserInfoById;

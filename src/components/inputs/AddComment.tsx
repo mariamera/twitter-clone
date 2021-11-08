@@ -1,5 +1,5 @@
 import React, { useRef } from 'react'
-import { useAuth } from '../../context/authContext';
+import { useAuth } from '../../context/AuthContext';
 import Avatar from '../Avatar/Avatar';
 
 export default function AddComment({ postID }) {

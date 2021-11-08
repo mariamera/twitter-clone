@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getAllPost, getUserFollowing , subscribePost , getUserInfoById } from '../helpers/queries';
-import { useAuth } from '../context/authContext';
+import { useAuth } from '../context/AuthContext';
 
 export function usePost(pageSize: number) {
   const [offset, setOffset] = useState();

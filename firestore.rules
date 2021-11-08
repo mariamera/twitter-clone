@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+		match /posts/{postID} {
+    	allow read; 
+      // allow delete;
+      allow delete: if request.auth.uid == resource.data.uid;
+      // allow create, update: if request.auth.uid != null;
+      allow create, update: if request.auth.uid != null && request.resource.data.text != '';
+    }
+		match /likes/{likeID} {
+    	allow read; 
+      allow write: if request.auth.uid != null && request.resource.data.userid == request.auth.uid;    
+    }
+		match /follows/{followID} {
+    	allow read; 
+      allow write: if request.auth.uid != null && request.resource.data.followerId == request.auth.uid;    
+    }
+    // This rule allows anyone on the internet to view, edit, and delete
+    // all data in your Firestore database. It is useful for getting
+    // started, but it is configured to expire after 30 days because it
+    // leaves your app open to attackers. At that time, all client
+    // requests to your Firestore database will be denied.
+    //
+    // Make sure to write security rules for your app before that time, or else
+    // your app will lose access to your Firestore database
+    // match /{document=**} {
+    //   allow read, write: if true;
+    // }
+  }
+}

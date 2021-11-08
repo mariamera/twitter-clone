@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import React, { ReactElement, useState, useEffect } from 'react'
 import Link from 'next/link';
 import setDate from '../../helpers/date';
-import { useAuth } from '../../context/authContext';
+import { useAuth } from '../../context/AuthContext';
 import Avatar from '../Avatar/Avatar';
 import DeletedPost from './DeletedPost';
 
@@ -14,7 +14,6 @@ import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
 import {
   addLike,
   checkPostLikes,
-  userLikedPost,
   userDisLikedPost,
   checkPostComment
 } from '../../helpers/queries';

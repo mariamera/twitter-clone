@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react'
 import Link from 'next/link';
 import NewPost from '../modal/NewPost';
 import { findUserPosts, startFollowing, stopFollowing } from '../../helpers/queries';
-import { useAuth } from '../../context/authContext';
-import { usePost } from '../../context/postContext';
+import { useAuth } from '../../context/AuthContext';
+import { usePost } from '../../context/PostContext';
 import useFollowing from '../../hooks/useFollowing';
 
 import Post from '../Posts/Post';

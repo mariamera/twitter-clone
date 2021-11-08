@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import React, { useRef, useState } from 'react'
-import { useAuth } from '../../context/authContext';
+import { useAuth } from '../../context/AuthContext';
 import Avatar from '../Avatar/Avatar';
 
 export default function AddPost({ children, style, onClick }) {

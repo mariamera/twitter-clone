@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { getAllPost, getUserFollowing, subscribePost, getUserInfoById , getSinglePost, getCommentsFromPost} from '../helpers/queries';
-import { useAuth } from "./authContext";
+import { useAuth } from "./AuthContext";
 
 const PostContext = React.createContext({});
 
