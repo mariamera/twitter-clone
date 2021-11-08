@@ -17,7 +17,7 @@ export default function AddComment({ postID }) {
   }
 
   return (
-    <div className={"relative mx-auto p-5 border rounded-md bg-white"}>
+    <div className={"relative mx-auto p-5 bg-white border-t"}>
       <div className="bg-white flex items-center">
         <div className="">
           <Avatar altText="your current profile picture" userPhoto={currentUser.photoURL} />

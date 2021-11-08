@@ -1,15 +1,14 @@
 import { database, db } from './firebase';
 import { POST_COLLECTION_NAME } from './constants';
 
-async function findUserPosts(username) {
-  let posts = [];
+async function findUserPosts(username: String) {
   let uid = await database.ref(`/usernames/${username}`).once('value', (snapshot) => (snapshot));
   const allPost = await db.collection(POST_COLLECTION_NAME).where("uid", "==", uid.val()).where("parentId", "==", null).orderBy('date', 'desc').get();
 
   return allPost ? allPost.docs.map(p => ({ ...p.data() })) : [];
 }
 
-async function getAllPost(followerList, pageSize, offsetDoc) {
+async function getAllPost(followerList, pageSize: Number, offsetDoc) {
   let postsArray = [];
   const posts = offsetDoc && offsetDoc.date ? await db.collection(POST_COLLECTION_NAME).where("uid", "in", followerList).orderBy('date', 'desc').startAfter(offsetDoc.date).limit(pageSize).get()
     : await db.collection(POST_COLLECTION_NAME).where("uid", "in", followerList).orderBy('date', 'desc').limit(pageSize).get();
@@ -51,12 +50,11 @@ async function getSinglePost(postId: string) {
   return db.collection(POST_COLLECTION_NAME).where('postID', '==', postId).get();
 }
 
-async function getCommentsFromPost(postID: String) {
+async function getCommentsFromPost(postIDArray: Array<any>) {
   let postsArray = [];
-  const posts = await db.collection(POST_COLLECTION_NAME).where("parentId", "==", postID).orderBy('date', 'desc').get();
-
-  if (posts.docs) {
-    postsArray = await posts.docs.reduce(async (prevValue, p) => {
+  if (postIDArray.length) {
+    console.log("postIDArray: ", postIDArray);
+    postsArray = await postIDArray.reduce(async (prevValue, p) => {
       const accum = await prevValue;
       const currentPost = p.data();
       const user = await database.ref(`/users/${currentPost.uid}`).once('value', (snapshot) => (snapshot));
@@ -97,16 +95,16 @@ async function checkPostComment(postId: string) {
 }
 
 
-async function userLikedPost(postId, uid) {
+async function userLikedPost(postId: string, uid: string) {
   const doc = await db.collection('likes').where('postId', "==", postId).where("userid", "==", uid).get();
   return doc.size;
 }
 
-function userDisLikedPost(likeId) {
+function userDisLikedPost(likeId: string) {
   return db.collection('likes').doc(likeId).delete();
 }
 
-function stopFollowing(connectionId) {
+function stopFollowing(connectionId : string) {
   return db.collection('follows').doc(connectionId).delete();
 }
 
@@ -118,7 +116,7 @@ async function getUserFollowing(uid: String) {
   return db.collection('follows').where("followerId", "==", uid).get();
 }
 
-async function getUserInfoByUsername(username: String) {
+async function getUserInfoByUsername(username: string) {
   return await database.ref('users').orderByChild('username').equalTo(username).once('value', (snapshot) => (snapshot));
 }
 

@@ -41,7 +41,7 @@ export default function Profile() {
       setLoading(true);
       const file = files[0];
       try {
-        const url = await uploadImageToFirebase(currentUser.email, file);
+        const url = await uploadImageToFirebase(currentUser.uid, file);
         await updateProfilePicture(url);
         setMessage("Image uploaded successfully");
 

@@ -14,6 +14,7 @@ export default function AddPost({ children, style, onClick }) {
     try {
       addPost(postRef.current.value);
       postRef.current.value = '';
+
       if ( onClick) onClick();
     } catch (error) {
       console.log("error: ", error);
