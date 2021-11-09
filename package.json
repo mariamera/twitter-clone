@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint --cache",
+    "lint:fix": "--fix src/commponents/* pages/*",
+    "precommit": "npm run lint:fix && npm run build"
   },
   "dependencies": {
     "@material-ui/core": "^4.11.1",
