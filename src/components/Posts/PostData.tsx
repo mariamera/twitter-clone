@@ -32,6 +32,8 @@ export default function PostData({ user, post, showParentText = false }: Props):
   const [likeDocID, setLikeDocID] = useState("");
 
   function belongsToCurrentUser(currentUser, postAuthor) {
+    // console.log("currentUser: ", currentUser);
+    // console.log("postAuthor: ", postAuthor);
     if (!currentUser) return false;
 
     return currentUser.uid === postAuthor.uid;

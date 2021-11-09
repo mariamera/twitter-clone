@@ -86,7 +86,6 @@ export function PostProvider({ children }) {
   };
 
   useEffect(async () => {
-    console.log("subscribe postContext?");
     let unsubscribe;
 
     if (currentUser) {

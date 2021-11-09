@@ -1,17 +1,54 @@
 import React, { useContext, useState, useEffect } from 'react'
-import { auth, database , db } from '../helpers/firebase';
+import { auth, database, db } from '../helpers/firebase';
 
-const AuthContext = React.createContext(null);
+type Props = {
+  children: React.ReactNode;
+};
+
+type Context = {
+  currentUser: {}
+  // login: () => {},
+  // logout: () => {},
+  // signup: () => {},
+  // resetPassword: () => {},
+  // updateEmail: () => {},
+  // updateUserProfile: () => {},
+  // updatePassword: () => {},
+  // updateProfilePicture: () => {},
+  // checkUsername: () => {},
+  // addPost: () => {},
+  // addReply: () => {},
+  // deletePost: () => {}
+};
+
+const defaultState = {
+  currentUser: {},
+  // login: () => void,
+  // logout: () => void,
+  // signup: () => void,
+  // resetPassword: () => void,
+  // updateEmail: () => void,
+  // updateUserProfile: () => void,
+  // updatePassword: () => void,
+  // updateProfilePicture: () => void,
+  // checkUsername: () => void,
+  // addPost: () => void,
+  // addReply: () => void,
+  // deletePost: () => void
+};
+
+const AuthContext = React.createContext<Context>(defaultState);
+
 
 export function useAuth() {
   return useContext(AuthContext);
 }
 
-export function AuthProvider({ children }) {
+export function AuthProvider({ children }: Props) {
   const [currentUser, setCurrentUser] = useState();
   const [loading, setLoading] = useState(true)
 
-  function signup(email, password, username) {
+  function signup(email: string, password: string, username: string) {
     return auth.createUserWithEmailAndPassword(email, password).then(({ user }) => updateUsername(username, user));
   }
 
@@ -34,7 +71,7 @@ export function AuthProvider({ children }) {
     });
   }
 
-  async function login(email, password) {
+  async function login(email: string, password: string) {
     return await auth.signInWithEmailAndPassword(email, password);
   }
 
@@ -42,15 +79,15 @@ export function AuthProvider({ children }) {
     return auth.signOut()
   }
 
-  function resetPassword(email) {
+  function resetPassword(email: string) {
     return auth.sendPasswordResetEmail(email)
   }
 
-  function updateEmail(email) {
+  function updateEmail(email: string) {
     return currentUser.updateEmail(email)
   }
 
-  function updatePassword(password) {
+  function updatePassword(password: string) {
     return currentUser.updatePassword(password)
   }
 
@@ -70,7 +107,7 @@ export function AuthProvider({ children }) {
     }
   }
 
-  async function updateProfilePicture(photoURL) {
+  async function updateProfilePicture(photoURL: string) {
     try {
       await currentUser.updateProfile({
         photoURL
@@ -105,8 +142,8 @@ export function AuthProvider({ children }) {
   }
 
   async function deletePost(postId: string) {
-   const doc = await db.collection("posts").where("postID", "==", postId).get();
-   
+    const doc = await db.collection("posts").where("postID", "==", postId).get();
+
     if (doc.docs && doc.docs.length === 1) {
       await doc.docs[0].ref.delete();
     }
@@ -115,7 +152,6 @@ export function AuthProvider({ children }) {
   }
 
   useEffect(() => {
-    console.log("subscribee");
     const unsubscribe = auth.onAuthStateChanged(user => {
       setCurrentUser(user);
       setLoading(false);

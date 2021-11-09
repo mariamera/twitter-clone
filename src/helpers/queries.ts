@@ -59,7 +59,7 @@ async function getCommentsFromPost(postIDArray: Array<any>) {
       const user = await database.ref(`/users/${currentPost.uid}`).once('value', (snapshot) => (snapshot));
 
       accum.push({
-        user: user.val(),
+        user:  { uid: user.key, ...user.val() },
         post: currentPost
       })
 

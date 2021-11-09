@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react'
-import AdSense from 'react-adsense';
 import { useAuth } from '../../context/AuthContext';
 import { useRouter } from 'next/router';
 import NewPost from '../modal/NewPost';
@@ -30,14 +29,6 @@ export default function Feed() {
 
   return (
     <>
-      <AdSense.Google
-        client='ca-pub-5273287913596003'
-        slot='5805809187'
-        style={{ display: 'block' }}
-        layout='in-article'
-        format='fluid'
-      />
-
       <div ref={bodyRef} className="w-full relative bg-primary pt-8">
         <div className="w-3/4 mx-auto">
           <AddPost />

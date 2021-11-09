@@ -14,7 +14,7 @@ const Home: NextPage = () => {
       <main className="bg-primary h-screen font-serif">
         <div className="w-1/2 h-full ml-auto bg-secondary text-white flex flex-col justify-center">
           <div className="mx-auto">
-            <h1 className>
+            <h1>
               Feminismo!
           </h1>
             <Link href={`/signup`}>

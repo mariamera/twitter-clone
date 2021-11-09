@@ -1,3 +1,4 @@
+import { FunctionComponent } from "react";
 import ForgotPassword from '../src/components/ForgotPassword';
 
 const ForgotPasswordPage: FunctionComponent = () => {

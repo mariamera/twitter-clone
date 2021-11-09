@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import React, { useEffect, useState } from 'react'
 import PostData from './PostData';
-import { usePost } from '../../context/postContext';
+import { usePost } from '../../context/PostContext';
 
 export default function Post({ user, post, showParentText = false }) {
   const [parentTweet, setParentTweet] = useState({});

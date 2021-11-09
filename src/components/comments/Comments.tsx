@@ -3,23 +3,45 @@ import Post from '../Posts/Post';
 import { db } from '../../helpers/firebase';
 import { getCommentsFromPost } from '../../helpers/queries';
 
+type Props = {
+  postID: string
+}
 
-export default function Comments({ postID }) {
-  const [comments, setComments] = useState([]);
 
-  useEffect(async () => {
-    const postRef = await db.collection('posts').where("parentId", "==", postID);
-    const unsubscribe = postRef.onSnapshot(async data => {
-      if (data.size) {
-        const commentsList = await getCommentsFromPost(data.docs);
+interface comments {
+  user: {},
+  post: {}
+}
 
-        setComments(commentsList);
-      }
-    });
+export default function Comments({ postID }: Props) {
+  const [comments, setComments] = useState<Array<comments>>([]);
 
-    return () => unsubscribe();
+  useEffect(() => {
+    let unsubscribe: any;
+  
+    const getPostData = async () => {
+      const postRef = await db.collection('posts').where("parentId", "==", postID);
 
-  }, []);
+      unsubscribe = postRef.onSnapshot(async data => {
+        if (data.size) {
+          const commentsList = await getCommentsFromPost(data.docs);
+
+          setComments(commentsList);
+        } else {
+          setComments([]);
+        }
+      });
+    };
+
+    getPostData();
+
+
+    return () => {
+      console.log("unsubscribinggg")
+      return unsubscribe();
+    };
+
+  }, [postID]);
 
   return (
     <div className={"relative mx-auto p-5 bg-white"}>

@@ -5,7 +5,7 @@ import { uploadImageToFirebase } from '../../helpers/images';
 import ErrorModal from '../modal/ErrorModal';
 import SuccessModal from '../modal/SuccessModal';
 import { useAuth } from '../../context/AuthContext';
-import { usePost } from '../../context/postContext';
+import { usePost } from '../../context/PostContext';
 import { DEFAULT_IMAGE } from '../../helpers/constants';
 import Avatar from '../Avatar/Avatar';
 

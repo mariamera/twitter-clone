@@ -49,8 +49,11 @@ export const getStaticProps: GetStaticProps = async (context) => {
     post: {}
   };
 
+  console.log("user: ", user);
   user.forEach(child => data['user'] = child.val());
   doc.forEach(d => data['post'] = d.data());
+
+  console.log("data['user']: ", data['user']);
 
   if (!data || !data['post']) {
     return {
