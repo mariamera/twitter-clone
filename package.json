@@ -6,8 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint --cache",
-    "lint:fix": "--fix src/commponents/* pages/*",
+    "lint": "eslint --cache src/*",
+    "lint:fix": "eslint --fix --ext .ts,.tsx ",
     "prepare": "husky install"
   },
   "dependencies": {

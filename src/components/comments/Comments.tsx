@@ -33,7 +33,6 @@ export default function Comments({ postID }: Props) {
 
 
     return () => {
-      console.log("unsubscribinggg")
       return unsubscribe();
     };
 

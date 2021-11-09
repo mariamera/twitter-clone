@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { getUserFollowing, getUserInfoById } from '../helpers/queries';
 
 export const useFollowing = (): [firebase.User[], (uid: string) => void] => {
