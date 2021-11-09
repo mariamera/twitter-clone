@@ -34,7 +34,6 @@ const defaultState = {
 
 const AuthContext = React.createContext<AuthContext>(defaultState);
 
-
 export function useAuth() {
   return useContext(AuthContext);
 }
@@ -46,7 +45,7 @@ export function AuthProvider({ children }: Props) {
   function signup(email: string, password: string, username: string) {
     return auth.createUserWithEmailAndPassword(email, password)
       .then(({ user }) => { if (user) return updateUsername(username, user) })
-      .catch(console.log)
+      .catch((error) => { throw new Error(error.message) })
   }
 
   async function updateUsername(username: string, createUser: firebase.User) {
@@ -62,7 +61,7 @@ export function AuthProvider({ children }: Props) {
   async function checkUsername(username: string) {
     return database.ref(`usernames/${username}`).once("value").then((snapshot) => {
       return snapshot.exists();
-    });
+    }).catch(error => { throw new Error(error.message) });
   }
 
   async function login(email: string, password: string) {

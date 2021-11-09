@@ -143,14 +143,15 @@ export function PostProvider({ children }: Props) {
           setCurrentFollowing(userFollowingList);
         });
       }
+
+      return () => unsubscribe();
     }
 
     fetchPost();
     setLoading(false);
 
-    return () => unsubscribe();
 
-  }, []);
+  }, [currentUser]);
 
   const postValue = {
     posts,

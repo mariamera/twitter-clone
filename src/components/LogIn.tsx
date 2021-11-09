@@ -40,7 +40,7 @@ export default function LogIn() {
   return (
     <>
       <div className="bg-white shadow overflow-hidden sm:rounded-lg p-8">
-        <h2>Log in</h2>
+        <h2 className="font-sans text-2xl font-bold leading-7 text-gray-500 text-center">Log In</h2>
         <ErrorModal errorMsg={error} />
         <form method="POST" className="flex flex-wrap" onSubmit={handleSubmit}>
           <div className="w-full pt-4">
@@ -77,7 +77,7 @@ export default function LogIn() {
       </div>
       <div className="w-full text-center mt-2">
         <Link href="/signup">
-          <a> Do not have an account? Sign up Here!</a>
+          <a className="text-gray-500"> Do not have an account <span className="text-blue-700"> Sign up Here! </span></a>
         </Link>
       </div>
     </>

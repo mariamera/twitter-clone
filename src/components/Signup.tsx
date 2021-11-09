@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import ErrorModal from './modal/ErrorModal';
+const NOT_VALID_CHAR = /^[^.#$\[\]]*$/g;
 
 export default function Signup() {
   const router = useRouter();
@@ -16,13 +17,21 @@ export default function Signup() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-
+    setError('');
     if (!usernameRef.current || !passwordRef.current || !passwordConfirmationRef.current || !emailRef.current) {
       setError('Empty fields');
       return;
     }
 
-    let isUsernameExist = await checkUsername!(usernameRef.current.value);
+    const username = usernameRef.current.value;
+
+    if (!username.match(NOT_VALID_CHAR)) {
+      setError('Username has not valid characters');
+
+      return;
+    }
+
+    let isUsernameExist = await checkUsername!(username); 
 
     if (isUsernameExist) {
       setError('Username is already taken');
@@ -35,9 +44,8 @@ export default function Signup() {
     }
 
     try {
-      setError('');
       setLoading(true);
-      await signup(emailRef.current.value, passwordRef.current.value, usernameRef.current.value);
+      await signup(emailRef.current.value, passwordRef.current.value, username);
       setLoading(false);
       router.push('/home');
     }
