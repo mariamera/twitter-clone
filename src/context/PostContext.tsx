@@ -1,18 +1,37 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { getAllPost, getUserFollowing, subscribePost, getUserInfoById , getSinglePost, getCommentsFromPost} from '../helpers/queries';
+import { getAllPost, getUserFollowing, subscribePost, getUserInfoById, getSinglePost, getCommentsFromPost } from '../helpers/queries';
 import { useAuth } from "./AuthContext";
+import { PostType, singlePostType } from "../helpers/types";
 
-const PostContext = React.createContext({});
+type Props = {
+  children: React.ReactNode;
+};
+
+type PostContext = {
+  posts: Array<PostType>,
+  getPosts: () => void,
+  getParentPost?: (parentPostId: string) => Promise<PostType>,
+  resetPost: () => void,
+};
+
+const defaultState = {
+  posts: [],
+  getPosts: () => { },
+  resetPost: () => { }
+};
+
+const PostContext = React.createContext<PostContext>(defaultState);
+
 
 export function usePost() {
   return useContext(PostContext);
 }
 
-export function PostProvider({ children }) {
-  const [offset, setOffset] = useState();
-  const [posts, setPosts] = useState([]);
+export function PostProvider({ children }: Props) {
+  const [offset, setOffset] = useState<singlePostType>();
+  const [posts, setPosts] = useState<PostType[]>([]);
   const [userList, setUserList] = useState([]);
-  const [currentFollowing, setCurrentFollowing] = useState([]);
+  const [currentFollowing, setCurrentFollowing] = useState<Array<string>>([]);
   const { currentUser } = useAuth();
   const [loading, setLoading] = useState(true)
 
@@ -29,41 +48,44 @@ export function PostProvider({ children }) {
     await resetPost();
   }
 
-  async function getComments(postID: string) {
-    const commentsList = await getCommentsFromPost(postID);
+  async function getComments(postIDArray: firebase.firestore.DocumentData[]) {
+    const commentsList = await getCommentsFromPost(postIDArray);
 
     return commentsList;
   }
 
   const resetPost = async () => {
-    const following = await getUserFollowing(currentUser.uid);
-    let ids = following.docs.map(follow => follow.data().followeeId);
-    const userFollowingList = [currentUser.uid, ...ids];
+    if (currentUser && currentUser.uid) {
+      const following = await getUserFollowing(currentUser.uid);
+      let ids = following.docs.map(follow => follow.data().followeeId);
+      const userFollowingList: string[] = [currentUser.uid, ...ids];
 
-    if (userFollowingList) {
-      const followersSnapShot = await getAllPost(userFollowingList, pageSize);
+      if (userFollowingList && userFollowingList.length) {
 
-      if (followersSnapShot.length) {
-        setOffset(followersSnapShot[followersSnapShot.length - 1].post);
-        setPosts([...followersSnapShot]);
+        const followersSnapShot = await getAllPost(userFollowingList, pageSize);
+
+        if (followersSnapShot.length) {
+          setOffset(followersSnapShot[followersSnapShot.length - 1].post);
+          setPosts([...followersSnapShot]);
+        }
       }
-    }
 
-    setCurrentFollowing(userFollowingList);
+      setCurrentFollowing(userFollowingList);
+    }
   };
 
-  async function getParentPost(parentPostId) {
-    if ( parentPostId ) {
+  async function getParentPost(parentPostId: string) {
+    if (parentPostId) {
       const parentPost = await getSinglePost(parentPostId);
-  
+
       if (parentPost && !parentPost.empty && parentPost.docs.length === 1) {
         const parentPostData = parentPost.docs[0].data();
-        if ( parentPostData.uid) {
+        if (parentPostData.uid) {
           const user = await getUserInfoById(parentPostData.uid);
           return {
             post: parentPostData,
-            user: { uid: user.key, ...user.val()},
-          };
+            user: { uid: user.key, ...user.val() },
+          } as PostType;
         }
       }
     }
@@ -71,9 +93,9 @@ export function PostProvider({ children }) {
     return {
       post: {},
       user: {}
-    }
-  } 
-  
+    } as PostType
+  }
+
   const getPosts = async () => {
     if (currentFollowing.length) {
       const followersSnapShot = await getAllPost(currentFollowing, pageSize, offset);
@@ -85,47 +107,49 @@ export function PostProvider({ children }) {
     }
   };
 
-  useEffect(async () => {
-    let unsubscribe;
+  useEffect(() => {
+    let unsubscribe: any;
 
-    if (currentUser) {
-      let userFollowingList: Array<String> = [];
+    const fetchPost = async () => {
+      if (currentUser && currentUser.uid) {
+        let userFollowingList: Array<string> = [];
 
-      const following = await getUserFollowing(currentUser.uid);
+        const following = await getUserFollowing(currentUser.uid);
 
-      if (following.size) {
-        let ids = following.docs.map(follow => follow.data().followeeId);
+        if (following.size) {
+          let ids = following.docs.map(follow => follow.data().followeeId);
 
-        userFollowingList = [currentUser.uid, ...ids];
-      } else {
-        userFollowingList = [currentUser.uid];
-      }
-
-
-      unsubscribe = subscribePost(userFollowingList, pageSize).onSnapshot(async snap => {
-        const users = [];
-        const data = await Promise.all(snap.docs.map(async doc => {
-          const info = doc.data()
-          const user = await getUserInfoById(info.uid);
-          return {
-            user: { uid: user.key, ...user.val()},
-            post: info
-          }
-        }))
-
-        if (data.length) {
-          setOffset(data[data.length - 1].post);
-          setPosts((prevState) => [...data]);
+          userFollowingList = [currentUser.uid, ...ids];
+        } else {
+          userFollowingList = [currentUser.uid];
         }
 
-        setCurrentFollowing(userFollowingList);
-        setLoading(false);
-      });
 
-      return () => unsubscribe();
+        unsubscribe = subscribePost(userFollowingList, pageSize).onSnapshot(async snap => {
+          const data: PostType[] = await Promise.all(snap.docs.map(async doc => {
+            const info = doc.data()
+            const user = await getUserInfoById(info.uid);
+            return {
+              user: { uid: user.key, ...user.val() },
+              post: info
+            } as PostType;
+          }))
+
+          if (data.length) {
+            setOffset(data[data.length - 1].post);
+            setPosts([...data]);
+          }
+
+          setCurrentFollowing(userFollowingList);
+        });
+      }
     }
 
+    fetchPost();
     setLoading(false);
+
+    return () => unsubscribe();
+
   }, []);
 
   const postValue = {

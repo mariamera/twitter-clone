@@ -7,11 +7,11 @@ import Post from '../../../src/components/Posts/Post';
 import AddComment from '../../../src/components/inputs/AddComment';
 import Comments from '../../../src/components/comments/Comments';
 
+import { singlePostType } from "../../../src/helpers/types";
+
 type Props = {
-  user: {},
-  post: {
-    postID: string
-  }
+  user: firebase.User,
+  post: singlePostType
 }
 
 interface IParams extends ParsedUrlQuery {
@@ -49,11 +49,8 @@ export const getStaticProps: GetStaticProps = async (context) => {
     post: {}
   };
 
-  console.log("user: ", user);
   user.forEach(child => data['user'] = child.val());
   doc.forEach(d => data['post'] = d.data());
-
-  console.log("data['user']: ", data['user']);
 
   if (!data || !data['post']) {
     return {

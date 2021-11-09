@@ -1,6 +1,9 @@
 import { database, db } from './firebase';
 import { POST_COLLECTION_NAME } from './constants';
 
+import { PostType, UserType, singlePostType } from "./types";
+
+
 async function findUserPosts(username: String) {
   let uid = await database.ref(`/usernames/${username}`).once('value', (snapshot) => (snapshot));
   const allPost = await db.collection(POST_COLLECTION_NAME).where("uid", "==", uid.val()).where("parentId", "==", null).orderBy('date', 'desc').get();
@@ -8,17 +11,19 @@ async function findUserPosts(username: String) {
   return allPost ? allPost.docs.map(p => ({ ...p.data() })) : [];
 }
 
-async function getAllPost(followerList: [], pageSize: Number, offsetDoc) {
-  let postsArray = [];
+async function getAllPost(followerList: string[], pageSize: number, offsetDoc?: { date: number }) {
+  let postsArray: Array<PostType> = [];
+
   const posts = offsetDoc && offsetDoc.date ? await db.collection(POST_COLLECTION_NAME).where("uid", "in", followerList).orderBy('date', 'desc').startAfter(offsetDoc.date).limit(pageSize).get()
     : await db.collection(POST_COLLECTION_NAME).where("uid", "in", followerList).orderBy('date', 'desc').limit(pageSize).get();
 
   if (posts.docs) {
-    postsArray = await posts.docs.reduce(async (prevValue, p) => {
-      const accum = await prevValue;
-      const currentPost = p.data();
+    postsArray = await posts.docs.reduce(async (prevValue: Promise<PostType[]>, p) => {
+      const accum: PostType[] = await prevValue;
+      const currentPost = p.data() as singlePostType;
 
-      const userAlreadyFetched = accum.find((current: { user: { uid: string} }) => current.user && current.user.uid === currentPost.uid);
+      const userAlreadyFetched = accum.find((current: PostType) => current.user && current.user.uid === currentPost.uid);
+
       if (userAlreadyFetched) {
         accum.push({
           user: userAlreadyFetched.user,
@@ -50,16 +55,17 @@ async function getSinglePost(postId: string) {
   return db.collection(POST_COLLECTION_NAME).where('postID', '==', postId).get();
 }
 
-async function getCommentsFromPost(postIDArray: Array<any>) {
-  let postsArray = [];
+async function getCommentsFromPost(postIDArray: firebase.firestore.DocumentData[]) {
+  let postsArray: Array<PostType> = [];
+
   if (postIDArray.length) {
-    postsArray = await postIDArray.reduce(async (prevValue, p) => {
-      const accum = await prevValue;
-      const currentPost = p.data();
+    postsArray = await postIDArray.reduce(async (prevValue: Promise<PostType[]>, p) => {
+      const accum: PostType[] = await prevValue;
+      const currentPost = p.data() as singlePostType;
       const user = await database.ref(`/users/${currentPost.uid}`).once('value', (snapshot) => (snapshot));
 
       accum.push({
-        user:  { uid: user.key, ...user.val() },
+        user: { uid: user.key, ...user.val() },
         post: currentPost
       })
 
@@ -71,7 +77,7 @@ async function getCommentsFromPost(postIDArray: Array<any>) {
   return postsArray;
 }
 
-async function startFollowing(followerId: String, followeeId: String) {
+async function startFollowing(followerId: string, followeeId: string) {
   return db.collection('follows').add({
     followerId,
     followeeId

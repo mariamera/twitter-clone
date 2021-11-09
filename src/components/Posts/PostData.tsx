@@ -11,6 +11,9 @@ import FavoriteBorderIcon from "@material-ui/icons/FavoriteBorder";
 import DeleteIcon from '@material-ui/icons/Delete';
 import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
 
+import { singlePostType, UserType } from "../../helpers/types";
+
+
 import {
   addLike,
   checkPostLikes,
@@ -19,8 +22,8 @@ import {
 } from '../../helpers/queries';
 
 interface Props {
-  user: Object
-  post: Object
+  user: UserType
+  post: singlePostType
   showParentText: Boolean
 }
 
@@ -31,12 +34,10 @@ export default function PostData({ user, post, showParentText = false }: Props):
   const [numberOfComments, setNumberOfComments] = useState(0);
   const [likeDocID, setLikeDocID] = useState("");
 
-  function belongsToCurrentUser(currentUser, postAuthor) {
-    // console.log("currentUser: ", currentUser);
-    // console.log("postAuthor: ", postAuthor);
+  function belongsToCurrentUser(currentUser: firebase.User | undefined, postAuthor: UserType) {
     if (!currentUser) return false;
 
-    return currentUser.uid === postAuthor.uid;
+    return currentUser.uid === postAuthor!.uid;
   }
 
   async function deleteThisPost() {
@@ -55,7 +56,7 @@ export default function PostData({ user, post, showParentText = false }: Props):
         setLikeDocID('');
         setNumberOfLikes(prev => prev - 1);
       } else {
-        const like = await addLike(post.postID, currentUser.uid);
+        const like = await addLike(post.postID, currentUser!.uid);
         const id = await like.get()
         setLikeDocID(id.id);
         setIsLiked(true);
@@ -67,38 +68,43 @@ export default function PostData({ user, post, showParentText = false }: Props):
     }
   }
 
-  useEffect(async () => {
+  useEffect(() => {
     if (!Object.keys(post).length) return;
 
-    try {
-      const like = await checkPostLikes(post.postID);
-      setNumberOfLikes(like.size);
-      setLikeDocID(like.docs[0] && like.docs[0].id);
+    const fetchData = async () => {
+      try {
+        const like = await checkPostLikes(post.postID);
+        setNumberOfLikes(like.size);
+        setLikeDocID(like.docs[0] && like.docs[0].id);
 
-      let checkLike;
-      if ( like.docs[0] ) {
-        checkLike = like.docs.find(val =>{
-          const x = val.data();
-         return  x.userid === currentUser.uid;
-        })
+        let checkLike;
+        if (like.docs[0]) {
+          checkLike = like.docs.find(val => {
+            const x = val.data();
+            return x.userid === currentUser!.uid;
+          })
 
+        }
+        setIsLiked(!!checkLike);
+
+        const comments = await checkPostComment(post.postID);
+
+        setNumberOfComments(comments.size);
+
+      } catch (err) {
+        console.log("err: ", err);
+
+        return;
       }
-      setIsLiked(!!checkLike);
+    };
 
-      const comments = await checkPostComment(post.postID);
+    fetchData();
 
-      setNumberOfComments(comments.size);
-  
-    } catch (err) {
-      console.log("err: ", err);
-
-      return;
-    }
-  }, []);
+  }, [post]);
 
   if (Object.keys(post).length === 0) {
     return (
-      <DeletedPost/>
+      <DeletedPost />
     )
   }
 
@@ -111,7 +117,7 @@ export default function PostData({ user, post, showParentText = false }: Props):
           </a>
         </Link>
       </div>
-      <div style={{flex: "1 1 0"}} className="px-4 flex-grow-0">
+      <div style={{ flex: "1 1 0" }} className="px-4 flex-grow-0">
         <Link href={`/${user.username}/status/${post.postID}`}>
           <a className="flex-auto">
             <h4 className="font-bold text-lg">{user.displayName}
@@ -125,8 +131,8 @@ export default function PostData({ user, post, showParentText = false }: Props):
         </Link>
         <div className="z-10 flex">
           <button disabled={!currentUser} className={"text-secondary flex mx-2"}>
-          <span className="pr-2">{numberOfComments}</span>
-            <ChatBubbleOutlineIcon/>
+            <span className="pr-2">{numberOfComments}</span>
+            <ChatBubbleOutlineIcon />
           </button>
           <button onClick={manageLike} disabled={!currentUser} className={"text-secondary flex mx-2"}>
             <span className="pr-2">{numberOfLikes}</span>

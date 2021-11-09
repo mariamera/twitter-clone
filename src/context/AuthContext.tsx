@@ -5,39 +5,34 @@ type Props = {
   children: React.ReactNode;
 };
 
-type Context = {
-  currentUser: {}
-  // login: () => {},
-  // logout: () => {},
-  // signup: () => {},
-  // resetPassword: () => {},
-  // updateEmail: () => {},
-  // updateUserProfile: () => {},
-  // updatePassword: () => {},
-  // updateProfilePicture: () => {},
-  // checkUsername: () => {},
-  // addPost: () => {},
-  // addReply: () => {},
-  // deletePost: () => {}
+type AuthContext = {
+  currentUser: firebase.User | undefined,
+  addPost: (post: string) => void,
+  resetPassword: (email: string) => void,
+  addReply: (postText: string, parentId: string) => void
+  login: (email: string, password: string) => void
+  deletePost: (postId: string) => void
+  logout: () => void
+  updateProfilePicture: (photoURL: string) => void
+  updateUserProfile: (displayName: string) => void
+  checkUsername?: (username: string) => Promise<boolean>
+  signup: (email: string, password: string, username: string) => void
 };
 
 const defaultState = {
-  currentUser: {},
-  // login: () => void,
-  // logout: () => void,
-  // signup: () => void,
-  // resetPassword: () => void,
-  // updateEmail: () => void,
-  // updateUserProfile: () => void,
-  // updatePassword: () => void,
-  // updateProfilePicture: () => void,
-  // checkUsername: () => void,
-  // addPost: () => void,
-  // addReply: () => void,
-  // deletePost: () => void
+  currentUser: undefined,
+  addPost: (post: string) => { },
+  resetPassword: (email: string) => { },
+  addReply: (postText: string, parentId: string) => { },
+  login: (email: string, password: string) => { },
+  deletePost: (postId: string) => { },
+  logout: () => { },
+  updateProfilePicture: (photoURL: string) => { },
+  updateUserProfile: (displayName: string) => { },
+  signup: (email: string, password: string, username: string) => { },
 };
 
-const AuthContext = React.createContext<Context>(defaultState);
+const AuthContext = React.createContext<AuthContext>(defaultState);
 
 
 export function useAuth() {
@@ -45,23 +40,22 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }: Props) {
-  const [currentUser, setCurrentUser] = useState();
+  const [currentUser, setCurrentUser] = useState<firebase.User>();
   const [loading, setLoading] = useState(true)
 
   function signup(email: string, password: string, username: string) {
-    return auth.createUserWithEmailAndPassword(email, password).then(({ user }) => updateUsername(username, user));
+    return auth.createUserWithEmailAndPassword(email, password)
+      .then(({ user }) => { if (user) return updateUsername(username, user) })
+      .catch(console.log)
   }
 
-  async function updateUsername(username: String, createUser: firebase.User | null) {
+  async function updateUsername(username: string, createUser: firebase.User) {
     await database.ref("users").child(createUser.uid).set({
       username,
       email: createUser.email,
     });
 
-    let data = {};
-    data[username] = createUser.uid
-
-    await database.ref("usernames").update(data)
+    await database.ref("usernames").update({ [username]: createUser.uid })
 
   }
 
@@ -84,15 +78,15 @@ export function AuthProvider({ children }: Props) {
   }
 
   function updateEmail(email: string) {
-    return currentUser.updateEmail(email)
+    return currentUser!.updateEmail(email)
   }
 
   function updatePassword(password: string) {
-    return currentUser.updatePassword(password)
+    return currentUser!.updatePassword(password)
   }
 
-  async function updateUserProfile(displayName: String) {
-    if (displayName) {
+  async function updateUserProfile(displayName: string) {
+    if (displayName && currentUser) {
       try {
         await currentUser.updateProfile({
           displayName
@@ -108,6 +102,8 @@ export function AuthProvider({ children }: Props) {
   }
 
   async function updateProfilePicture(photoURL: string) {
+    if (!currentUser) return;
+
     try {
       await currentUser.updateProfile({
         photoURL
@@ -125,7 +121,7 @@ export function AuthProvider({ children }: Props) {
     await db.collection("posts").add({
       text: postText,
       date: Date.now(),
-      uid: currentUser.uid,
+      uid: currentUser!.uid,
       parentId: null,
       postID: `${Math.round(Date.now() + Math.random())}`
     });
@@ -135,7 +131,7 @@ export function AuthProvider({ children }: Props) {
     await db.collection("posts").add({
       text: postText,
       date: Date.now(),
-      uid: currentUser.uid,
+      uid: currentUser!.uid,
       parentId: parentId,
       postID: `${Math.round(Date.now() + Math.random())}`
     });
@@ -153,7 +149,7 @@ export function AuthProvider({ children }: Props) {
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(user => {
-      setCurrentUser(user);
+      setCurrentUser(user || undefined);
       setLoading(false);
     });
 

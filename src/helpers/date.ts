@@ -5,7 +5,7 @@ function isADayAgo(input: Date) {
   return moment(input).isBefore(yesterday);
 }
 
-export default function setDate(timestamp: Date) {
+export default function setDate(timestamp: number) {
   var date = new Date(timestamp);
 
   if (isADayAgo(date)) {

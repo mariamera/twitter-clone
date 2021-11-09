@@ -11,4 +11,6 @@ async function uploadImageToFirebase(uid, file) {
   return url;
 }
 
-module.exports.uploadImageToFirebase = uploadImageToFirebase;
+export {
+  uploadImageToFirebase
+}

@@ -8,15 +8,21 @@ export default function Signup() {
   const router = useRouter();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const emailRef = useRef();
-  const passwordRef = useRef();
-  const usernameRef = useRef();
-  const passwordConfirmationRef = useRef();
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const usernameRef = useRef<HTMLInputElement>(null);
+  const passwordConfirmationRef = useRef<HTMLInputElement>(null);
   const { signup, checkUsername } = useAuth();
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    let isUsernameExist = await checkUsername(usernameRef.current.value);
+
+    if (!usernameRef.current || !passwordRef.current || !passwordConfirmationRef.current || !emailRef.current) {
+      setError('Empty fields');
+      return;
+    }
+
+    let isUsernameExist = await checkUsername!(usernameRef.current.value);
 
     if (isUsernameExist) {
       setError('Username is already taken');
@@ -36,7 +42,12 @@ export default function Signup() {
       router.push('/home');
     }
     catch (error) {
-      setError(`${error.message}`);
+      let errorMessage = "Failed to do something exceptional";
+      if (error instanceof Error) {
+        errorMessage = error.message
+      }
+
+      setError(errorMessage);
     }
   }
   return (
