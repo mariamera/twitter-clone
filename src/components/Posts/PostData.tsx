@@ -31,9 +31,7 @@ export default function PostData({ user, post, showParentText = false }: Props):
   const [numberOfComments, setNumberOfComments] = useState(0);
   const [likeDocID, setLikeDocID] = useState("");
 
-  function belongsToCurrentUser(currentUser, postAuthor) {
-    // console.log("currentUser: ", currentUser);
-    // console.log("postAuthor: ", postAuthor);
+  function belongsToCurrentUser(currentUser: { uid: string }, postAuthor: { uid: string }) {
     if (!currentUser) return false;
 
     return currentUser.uid === postAuthor.uid;
@@ -76,10 +74,10 @@ export default function PostData({ user, post, showParentText = false }: Props):
       setLikeDocID(like.docs[0] && like.docs[0].id);
 
       let checkLike;
-      if ( like.docs[0] ) {
-        checkLike = like.docs.find(val =>{
+      if (like.docs[0]) {
+        checkLike = like.docs.find(val => {
           const x = val.data();
-         return  x.userid === currentUser.uid;
+          return x.userid === currentUser.uid;
         })
 
       }
@@ -88,7 +86,7 @@ export default function PostData({ user, post, showParentText = false }: Props):
       const comments = await checkPostComment(post.postID);
 
       setNumberOfComments(comments.size);
-  
+
     } catch (err) {
       console.log("err: ", err);
 
@@ -98,7 +96,7 @@ export default function PostData({ user, post, showParentText = false }: Props):
 
   if (Object.keys(post).length === 0) {
     return (
-      <DeletedPost/>
+      <DeletedPost />
     )
   }
 
@@ -111,7 +109,7 @@ export default function PostData({ user, post, showParentText = false }: Props):
           </a>
         </Link>
       </div>
-      <div style={{flex: "1 1 0"}} className="px-4 flex-grow-0">
+      <div style={{ flex: "1 1 0" }} className="px-4 flex-grow-0">
         <Link href={`/${user.username}/status/${post.postID}`}>
           <a className="flex-auto">
             <h4 className="font-bold text-lg">{user.displayName}
@@ -125,8 +123,8 @@ export default function PostData({ user, post, showParentText = false }: Props):
         </Link>
         <div className="z-10 flex">
           <button disabled={!currentUser} className={"text-secondary flex mx-2"}>
-          <span className="pr-2">{numberOfComments}</span>
-            <ChatBubbleOutlineIcon/>
+            <span className="pr-2">{numberOfComments}</span>
+            <ChatBubbleOutlineIcon />
           </button>
           <button onClick={manageLike} disabled={!currentUser} className={"text-secondary flex mx-2"}>
             <span className="pr-2">{numberOfLikes}</span>

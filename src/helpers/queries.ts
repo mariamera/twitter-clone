@@ -8,8 +8,9 @@ async function findUserPosts(username: String) {
   return allPost ? allPost.docs.map(p => ({ ...p.data() })) : [];
 }
 
-async function getAllPost(followerList: [], pageSize: Number, offsetDoc) {
-  let postsArray = [];
+async function getAllPost(followerList: [], pageSize: number, offsetDoc?: { date: string }) {
+  let postsArray: Array<Object> = [];
+
   const posts = offsetDoc && offsetDoc.date ? await db.collection(POST_COLLECTION_NAME).where("uid", "in", followerList).orderBy('date', 'desc').startAfter(offsetDoc.date).limit(pageSize).get()
     : await db.collection(POST_COLLECTION_NAME).where("uid", "in", followerList).orderBy('date', 'desc').limit(pageSize).get();
 
@@ -18,7 +19,8 @@ async function getAllPost(followerList: [], pageSize: Number, offsetDoc) {
       const accum = await prevValue;
       const currentPost = p.data();
 
-      const userAlreadyFetched = accum.find((current: { user: { uid: string} }) => current.user && current.user.uid === currentPost.uid);
+      const userAlreadyFetched = accum.find((current: { user: { uid: string } }) => current.user && current.user.uid === currentPost.uid);
+
       if (userAlreadyFetched) {
         accum.push({
           user: userAlreadyFetched.user,
@@ -59,7 +61,7 @@ async function getCommentsFromPost(postIDArray: Array<any>) {
       const user = await database.ref(`/users/${currentPost.uid}`).once('value', (snapshot) => (snapshot));
 
       accum.push({
-        user:  { uid: user.key, ...user.val() },
+        user: { uid: user.key, ...user.val() },
         post: currentPost
       })
 

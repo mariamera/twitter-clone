@@ -6,7 +6,10 @@ type Props = {
 };
 
 type Context = {
-  currentUser: {}
+  currentUser: {
+    uid?: String,
+    username?: string
+  }
   // login: () => {},
   // logout: () => {},
   // signup: () => {},
