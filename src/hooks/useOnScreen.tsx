@@ -12,14 +12,15 @@ export default function useOnScreen<Element extends HTMLElement>(
   throttleMilliseconds = 100
 ): [Boolean, React.RefObject<Element>] {
   const [isVisible, setIsVisible] = useState(false);
-  const currentElement = useRef<Element>();
+  const currentElement = useRef(null) as any; //TODO: clean this 
 
   const onScroll = throttle(() => {
-    if (!currentElement.current) {
+    if (!currentElement && !currentElement!.current) {
       setIsVisible(false);
       return;
     }
-    const top = currentElement.current.getBoundingClientRect().top;
+
+    const top = currentElement!.current!.getBoundingClientRect().top;
     setIsVisible(top + offset >= 0 && top - offset <= window.innerHeight);
   }, throttleMilliseconds);
 

@@ -3,18 +3,14 @@ import Post from '../Posts/Post';
 import { db } from '../../helpers/firebase';
 import { getCommentsFromPost } from '../../helpers/queries';
 
+import { PostType } from "../../helpers/types";
+
 type Props = {
   postID: string
 }
 
-
-interface comments {
-  user: {},
-  post: {}
-}
-
 export default function Comments({ postID }: Props) {
-  const [comments, setComments] = useState<Array<comments>>([]);
+  const [comments, setComments] = useState<Array<PostType>>([]);
 
   useEffect(() => {
     let unsubscribe: any;

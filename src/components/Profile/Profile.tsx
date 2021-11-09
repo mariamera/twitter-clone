@@ -1,12 +1,10 @@
 import React, { useRef, useState } from 'react'
 import { useRouter } from 'next/router';
-import Image from 'next/image'
 import { uploadImageToFirebase } from '../../helpers/images';
 import ErrorModal from '../modal/ErrorModal';
 import SuccessModal from '../modal/SuccessModal';
 import { useAuth } from '../../context/AuthContext';
 import { usePost } from '../../context/PostContext';
-import { DEFAULT_IMAGE } from '../../helpers/constants';
 import Avatar from '../Avatar/Avatar';
 
 export default function Profile() {
@@ -18,8 +16,8 @@ export default function Profile() {
   const { updateProfilePicture, updateUserProfile } = useAuth();
   const [loading, setLoading] = useState(false);
 
-  const getFile = useRef();
-  const diplayNameRef = useRef();
+  const getFile = useRef<HTMLInputElement>(null);
+  const diplayNameRef = useRef<HTMLInputElement>(null);
 
 
   async function handleLogout() {
@@ -32,40 +30,60 @@ export default function Profile() {
     }
   }
 
-  async function uploadImage(e) {
+  async function uploadImage(event: React.ChangeEvent<HTMLInputElement>) {
     setMessage('');
     setError('');
 
     const files = event.target.files;
-    if (files.length === 1) {
+  
+    if (files && files.length === 1) {
       setLoading(true);
       const file = files[0];
       try {
-        const url = await uploadImageToFirebase(currentUser.uid, file);
+        const url = await uploadImageToFirebase(currentUser!.uid, file);
         await updateProfilePicture(url);
         setMessage("Image uploaded successfully");
-
       } catch (error) {
-        // setError(error);
+        let errorMessage = "Failed to do something exceptional";
+        if (error instanceof Error) {
+          errorMessage = error.message;
+        }
+
+        setError(errorMessage);
       }
     }
   }
 
-  async function updateUserPro(e) {
+  async function updateUserPro(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setMessage('');
     setError('');
 
+    if (!diplayNameRef.current) {
+      setError('uppsss.. we encounter some issues with the name');
+
+      return;
+    }
+  
     try {
       await updateUserProfile(diplayNameRef.current.value);
       await resetPost();
       setMessage('Information updated Successfully');
     } catch (error) {
-      setError(error);
+      let errorMessage = "Failed to do something exceptional";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
+      setError(errorMessage);
     }
   }
+
   function openFileWindow() {
-    getFile.current.click();
+    if (getFile.current) {
+      getFile.current.click();
+
+    }
   }
 
   if (!currentUser) {
@@ -82,7 +100,7 @@ export default function Profile() {
         <div className="flex">
           <div className="w-3/12">
             <div>
-              <Avatar altText={`Your current profile picture`} userPhoto={currentUser.photoURL} size={{ height: "200", width: "200"}}/>
+              <Avatar altText={`Your current profile picture`} userPhoto={currentUser.photoURL} size={{ height: "200", width: "200" }} />
               <button className="block p-4 mt-6 text-center border-2 border-dashed mx-auto" onClick={openFileWindow}>Upload Picture
               <input ref={getFile} type="file" onChange={uploadImage} className="invisible w-full hidden" multiple />
               </button>
@@ -94,7 +112,7 @@ export default function Profile() {
               <div>{currentUser.email}</div>
               <div className="">
                 <div>Display Name:</div>
-                <input className="block border border-gray-400 rounded-md px-4" ref={diplayNameRef} defaultValue={currentUser.displayName} />
+                <input className="block border border-gray-400 rounded-md px-4" ref={diplayNameRef} defaultValue={currentUser.displayName || ''} />
               </div>
               <div className="w-full">
                 <button className="block my-4 bg-secondary text-white hover:bg-third text-white font-bold py-2 px-4 border border-secondary">Update Profile</button>

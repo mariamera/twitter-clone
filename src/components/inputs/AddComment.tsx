@@ -2,16 +2,22 @@ import React, { useRef } from 'react'
 import { useAuth } from '../../context/AuthContext';
 import Avatar from '../Avatar/Avatar';
 
-export default function AddComment({ postID }) {
-  const commentRef = useRef(null);
+type Props = {
+  postID: string
+}
+export default function AddComment({ postID }: Props) {
+  const commentRef = useRef<HTMLInputElement>(null);
   const { currentUser, addReply } = useAuth();
 
-  function postAnswer(e) {
+  function postAnswer(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+
+    if (!commentRef.current) return;
+
     try {
       addReply(commentRef.current.value, postID);
       commentRef.current.value = '';
-    } catch(e) {
+    } catch (e) {
       console.log(e)
     }
   }
@@ -20,7 +26,7 @@ export default function AddComment({ postID }) {
     <div className={"relative mx-auto p-5 bg-white border-t"}>
       <div className="bg-white flex items-center">
         <div className="">
-          <Avatar altText="your current profile picture" userPhoto={currentUser.photoURL} />
+          <Avatar altText="your current profile picture" userPhoto={currentUser!.photoURL} />
         </div>
         <div className="flex-auto">
           <form

@@ -4,15 +4,21 @@ import NewPost from '../modal/NewPost';
 import { findUserPosts, startFollowing, stopFollowing } from '../../helpers/queries';
 import { useAuth } from '../../context/AuthContext';
 import { usePost } from '../../context/PostContext';
-import useFollowing from '../../hooks/useFollowing';
+import { useFollowing } from '../../hooks/useFollowing';
 
 import Post from '../Posts/Post';
 import { db } from '../../helpers/firebase';
 import Avatar from '../Avatar/Avatar';
 import Followers from '../modal/Followers';
 
-export default function UserFeed({ user }) {
-  const [post, setPost] = useState([]);
+import { UserType, singlePostType } from "../../helpers/types";
+
+type Props = {
+  user: UserType
+};
+
+export default function UserFeed({ user }: Props) {
+  const [post, setPost] = useState<Array<singlePostType>>([]);
   const [error, setError] = useState('');
   const { resetPost } = usePost();
   const { currentUser } = useAuth();
@@ -30,43 +36,50 @@ export default function UserFeed({ user }) {
         await stopFollowing(connectionDocID)
         resetPost();
         setIsFollowing(false);
-        setFollowers(v => v - 1);
+        setFollowers(v => v ? v - 1 : 0);
       } else {
-        await startFollowing(currentUser.uid, user.uid);
+        await startFollowing(currentUser!.uid, user.uid || '');
         resetPost();
         setIsFollowing(true)
-        setFollowers(v => v + 1);
+        setFollowers(v => v ? v + 1 : 1);
       }
     } catch (e) {
       setError('something wrong happened');
     }
   }
 
-  function openFollowersModal(){
-    getFollowing(user.uid);
-    setOpenModal(true);
+  function openFollowersModal() {
+    if (user && user.uid) {
+      getFollowing(user.uid);
+      setOpenModal(true);
+    }
   }
 
-  useEffect(async () => {
-    if (user) {
-      async function checkFollowing() {
-        const result = await
-          db
-            .collection('follows')
-            .where('followerId', '==', currentUser.uid)
-            .where('followeeId', '==', user.uid)
-            .get();
+  async function checkFollowing() {
+    const result = await
+      db
+        .collection('follows')
+        .where('followerId', '==', currentUser!.uid)
+        .where('followeeId', '==', user.uid)
+        .get();
 
-        if (result.size === 1) {
-          setIsFollowing(true);
-          setFollowingDocID(result.docs[0].id);
-        }
-      }
-
-      checkFollowing();
-      const getPost = await findUserPosts(user.username);
-      setPost(getPost);
+    if (result.size === 1) {
+      setIsFollowing(true);
+      setFollowingDocID(result.docs[0].id);
     }
+  }
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (user && user.username) {
+        checkFollowing();
+        const getPost: any = await findUserPosts(user.username); //TODO: change Any to correct type
+
+        setPost(getPost);
+      }
+    }
+
+    fetchUserData();
   }, [user]);
 
   return (
@@ -89,7 +102,7 @@ export default function UserFeed({ user }) {
               </button>
             </div>
             <div>
-              {currentUser.uid !== user.uid ?
+              {currentUser!.uid !== user.uid ?
                 (<button
                   className="block ml-auto mt-4 bg-secondary text-white hover:bg-third text-white font-bold py-2 px-4 rounded"
                   onClick={handleFollow}
@@ -114,7 +127,7 @@ export default function UserFeed({ user }) {
         </div>
       </div>
       <NewPost />
-      <Followers userList={followersList} isOpen={openModal} onClick={() => setOpenModal(false)}/>
+      <Followers userList={followersList} isOpen={openModal} onClick={() => setOpenModal(false)} />
     </div>
   )
 }

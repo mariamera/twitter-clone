@@ -1,12 +1,15 @@
+import { ReactNode } from 'react'
+
 import Menu from '../../src/components/Menu';
 
-export default function Layout({ children }) {
+type Props = {
+  children: ReactNode;
+}
+
+export default function Layout({ children }: Props) {
 
   return (
     <>
-      <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
-      </script>
       <div className="w-full min-h-screen bg-primary pb-12">
         <Menu />
         {children}

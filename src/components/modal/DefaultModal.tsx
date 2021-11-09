@@ -1,9 +1,13 @@
 import clsx from "clsx";
-import React, { useState } from 'react';
-import Image from 'next/image';
+import React from 'react';
 
-export default function DefaultModal({ children, isOpen, onClick }) {
-  console.log("isOpen: ", isOpen);
+type Props = {
+  children: React.ReactNode;
+  isOpen: boolean,
+  onClick: () => void
+};
+
+export default function DefaultModal({ children, isOpen, onClick }: Props) {
   return (
     <>
       <div className={clsx("fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full", !isOpen && "hidden")}>

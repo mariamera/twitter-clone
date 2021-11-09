@@ -4,7 +4,7 @@ import { DEFAULT_IMAGE } from '../../helpers/constants';
 
 interface Props {
   altText: string
-  userPhoto: string
+  userPhoto?: string | null;
   size?: {
     height?: string
     width?: string

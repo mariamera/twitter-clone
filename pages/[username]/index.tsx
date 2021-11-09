@@ -5,8 +5,10 @@ import Layout from '../../src/layouts/Layout'
 import UserFeed from '../../src/components/user/UserFeed';
 import { getUserInfoByUsername, getUserFollowers, getUserFollowing } from "../../src/helpers/queries";
 
+import { UserType } from "../../src/helpers/types";
+
 type Props = {
-  data: {}
+  data: UserType
 }
 
 interface IParams extends ParsedUrlQuery {
