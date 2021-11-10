@@ -14,7 +14,7 @@ export default function Comments({ postID }: Props) {
 
   useEffect(() => {
     let unsubscribe: any;
-  
+
     const getPostData = async () => {
       const postRef = await db.collection('posts').where("parentId", "==", postID);
 
@@ -29,7 +29,7 @@ export default function Comments({ postID }: Props) {
       });
     };
 
-    getPostData();
+    void getPostData();
 
 
     return () => {

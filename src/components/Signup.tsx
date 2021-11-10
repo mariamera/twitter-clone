@@ -1,9 +1,10 @@
 import React, { useRef, useState } from 'react'
-import { useAuth } from '../context/AuthContext';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useAuth } from '../context/AuthContext';
 import ErrorModal from './modal/ErrorModal';
-const NOT_VALID_CHAR = /^[^.#$\[\]]*$/g;
+
+const NOT_VALID_CHAR = /^[^.#$[\]]*$/g;
 
 export default function Signup() {
   const router = useRouter();
@@ -31,7 +32,7 @@ export default function Signup() {
       return;
     }
 
-    let isUsernameExist = await checkUsername!(username); 
+    const isUsernameExist = await checkUsername!(username); 
 
     if (isUsernameExist) {
       setError('Username is already taken');
@@ -47,7 +48,7 @@ export default function Signup() {
       setLoading(true);
       await signup(emailRef.current.value, passwordRef.current.value, username);
       setLoading(false);
-      router.push('/home');
+      void router.push('/home');
     }
     catch (error) {
       let errorMessage = "Failed to do something exceptional";

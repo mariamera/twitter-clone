@@ -15,12 +15,13 @@ export default function useOnScreen<Element extends HTMLElement>(
   const currentElement = useRef(null) as any; //TODO: clean this 
 
   const onScroll = throttle(() => {
-    if (!currentElement && !currentElement!.current) {
+    if (!currentElement) {
       setIsVisible(false);
       return;
     }
 
-    const top = currentElement!.current!.getBoundingClientRect().top;
+    const top: number = currentElement.current!.getBoundingClientRect().top;
+
     setIsVisible(top + offset >= 0 && top - offset <= window.innerHeight);
   }, throttleMilliseconds);
 

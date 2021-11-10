@@ -1,14 +1,13 @@
 import { database, db } from './firebase';
 import { POST_COLLECTION_NAME } from './constants';
 
-import { PostType, UserType, singlePostType } from "./types";
+import { PostType, singlePostType } from "./types";
 
-
-async function findUserPosts(username: String) {
-  let uid = await database.ref(`/usernames/${username}`).once('value', (snapshot) => (snapshot));
+async function findUserPosts(username: string) {
+  const uid = await database.ref(`/usernames/${username}`).once('value', (snapshot) => (snapshot));
   const allPost = await db.collection(POST_COLLECTION_NAME).where("uid", "==", uid.val()).where("parentId", "==", null).orderBy('date', 'desc').get();
 
-  return allPost ? allPost.docs.map(p => ({ ...p.data() })) : [];
+  return allPost.docs.map(p => ({ ...p.data() }));
 }
 
 async function getAllPost(followerList: string[], pageSize: number, offsetDoc?: { date: number }) {
@@ -17,12 +16,12 @@ async function getAllPost(followerList: string[], pageSize: number, offsetDoc?: 
   const posts = offsetDoc && offsetDoc.date ? await db.collection(POST_COLLECTION_NAME).where("uid", "in", followerList).orderBy('date', 'desc').startAfter(offsetDoc.date).limit(pageSize).get()
     : await db.collection(POST_COLLECTION_NAME).where("uid", "in", followerList).orderBy('date', 'desc').limit(pageSize).get();
 
-  if (posts.docs) {
+  if (posts.size) {
     postsArray = await posts.docs.reduce(async (prevValue: Promise<PostType[]>, p) => {
       const accum: PostType[] = await prevValue;
       const currentPost = p.data() as singlePostType;
 
-      const userAlreadyFetched = accum.find((current: PostType) => current.user && current.user.uid === currentPost.uid);
+      const userAlreadyFetched = accum.find((current: PostType) => current.user.uid === currentPost.uid);
 
       if (userAlreadyFetched) {
         accum.push({
@@ -113,11 +112,11 @@ function stopFollowing(connectionId: string) {
   return db.collection('follows').doc(connectionId).delete();
 }
 
-async function getUserFollowers(uid: String) {
+async function getUserFollowers(uid: string) {
   return db.collection('follows').where("followeeId", "==", uid).get();
 }
 
-async function getUserFollowing(uid: String) {
+async function getUserFollowing(uid: string) {
   return db.collection('follows').where("followerId", "==", uid).get();
 }
 
@@ -125,7 +124,7 @@ async function getUserInfoByUsername(username: string) {
   return await database.ref('users').orderByChild('username').equalTo(username).once('value', (snapshot) => (snapshot));
 }
 
-async function getUserInfoById(uid: String) {
+async function getUserInfoById(uid: string) {
   return await database.ref(`users/${uid}`).once('value', (snapshot) => (snapshot));
 }
 

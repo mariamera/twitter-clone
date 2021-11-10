@@ -49,7 +49,7 @@ export default function UserFeed({ user }: Props) {
   }
 
   function openFollowersModal() {
-    if (user && user.uid) {
+    if (user.uid) {
       getFollowing(user.uid);
       setOpenModal(true);
     }
@@ -71,20 +71,29 @@ export default function UserFeed({ user }: Props) {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      if (user && user.username) {
-        checkFollowing();
-        const getPost: any = await findUserPosts(user.username); //TODO: change Any to correct type
+      if (user.username) {
+        void checkFollowing();
+
+        const getPost: singlePostType = await findUserPosts(user.username); //TODO: change Any to correct type
 
         setPost(getPost);
       }
     }
 
-    fetchUserData();
+    void fetchUserData();
+
+    return () => {
+      setPost([]);
+    };
   }, [user]);
+
+  if (!user.username) {
+    return <></>;
+  }
 
   return (
     <div className="w-full bg-primary">
-      <div className="min-h-full h-44 bg-gradient-to-tl from-secondary"></div>
+      <div className="min-h-full h-44 bg-gradient-to-tl from-secondary" />
       <div className="md:w-3/4 md:mx-auto md:-my-8">
         <div className="p-8 flex flex-wrap md:flex-nowrap bg-white md:min-h-full">
           <div className="w-auto mx-auto -mb-12 transform -translate-y-1/2 md:-mb-20">

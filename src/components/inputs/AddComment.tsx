@@ -12,7 +12,9 @@ export default function AddComment({ postID }: Props) {
   function postAnswer(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
 
-    if (!commentRef.current) return;
+    if (!commentRef.current) {
+      return;
+    }
 
     try {
       addReply(commentRef.current.value, postID);

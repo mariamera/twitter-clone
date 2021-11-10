@@ -10,7 +10,7 @@ type Props = {
 }
 
 export default function AddPost({ children, style, onClick }: Props) {
-  const [disableBtn, setDisableBtn] = useState(true);
+  // const [disableBtn, setDisableBtn] = useState(true);
   const postRef = useRef<HTMLTextAreaElement>(null);
   const { currentUser, addPost } = useAuth();
 
@@ -18,14 +18,16 @@ export default function AddPost({ children, style, onClick }: Props) {
     e.preventDefault();
 
     if (!postRef.current) {
-      return;
-    };
+      return
+    }
 
     try {
       addPost(postRef.current.value);
       postRef.current.value = '';
 
-      if (onClick) onClick();
+      if (onClick) {
+        onClick();
+      }
     } catch (error) {
       console.log("error: ", error);
     }

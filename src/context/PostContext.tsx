@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { getAllPost, getUserFollowing, subscribePost, getUserInfoById, getSinglePost, getCommentsFromPost } from '../helpers/queries';
-import { useAuth } from "./AuthContext";
 import { PostType, singlePostType } from "../helpers/types";
+import { useAuth } from "./AuthContext";
 
 type Props = {
   children: React.ReactNode;
@@ -57,10 +57,10 @@ export function PostProvider({ children }: Props) {
   const resetPost = async () => {
     if (currentUser && currentUser.uid) {
       const following = await getUserFollowing(currentUser.uid);
-      let ids = following.docs.map(follow => follow.data().followeeId);
+      const ids = following.docs.map(follow => follow.data().followeeId);
       const userFollowingList: string[] = [currentUser.uid, ...ids];
 
-      if (userFollowingList && userFollowingList.length) {
+      if (userFollowingList.length) {
 
         const followersSnapShot = await getAllPost(userFollowingList, pageSize);
 
@@ -78,10 +78,10 @@ export function PostProvider({ children }: Props) {
     if (parentPostId) {
       const parentPost = await getSinglePost(parentPostId);
 
-      if (parentPost && !parentPost.empty && parentPost.docs.length === 1) {
+      if (!parentPost.empty && parentPost.docs.length === 1) {
         const parentPostData = parentPost.docs[0].data();
         if (parentPostData.uid) {
-          const user = await getUserInfoById(parentPostData.uid);
+          const user = await getUserInfoById(parentPostData.uid as string);
           return {
             post: parentPostData,
             user: { uid: user.key, ...user.val() },
@@ -108,7 +108,7 @@ export function PostProvider({ children }: Props) {
   };
 
   useEffect(() => {
-    let unsubscribe: any;
+    let unsubscribe: React.EffectCallback;
 
     const fetchPost = async () => {
       if (currentUser && currentUser.uid) {
@@ -117,18 +117,17 @@ export function PostProvider({ children }: Props) {
         const following = await getUserFollowing(currentUser.uid);
 
         if (following.size) {
-          let ids = following.docs.map(follow => follow.data().followeeId);
+          const ids = following.docs.map(follow => follow.data().followeeId);
 
           userFollowingList = [currentUser.uid, ...ids];
         } else {
           userFollowingList = [currentUser.uid];
         }
 
-
         unsubscribe = subscribePost(userFollowingList, pageSize).onSnapshot(async snap => {
           const data: PostType[] = await Promise.all(snap.docs.map(async doc => {
             const info = doc.data()
-            const user = await getUserInfoById(info.uid);
+            const user = await getUserInfoById(info.uid as string);
             return {
               user: { uid: user.key, ...user.val() },
               post: info
@@ -147,7 +146,7 @@ export function PostProvider({ children }: Props) {
       return () => unsubscribe();
     }
 
-    fetchPost();
+    void fetchPost();
     setLoading(false);
 
 
