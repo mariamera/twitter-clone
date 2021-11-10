@@ -3,8 +3,8 @@ import {
 } from './firebase';
 
 
-async function uploadImageToFirebase(uid, file) {
-  const storageRef = storage.ref(uid + '/profilePicture/profilepic');
+async function uploadImageToFirebase(uid: string, file: File) : Promise<string> {
+  const storageRef = storage.ref(`${uid}/profilePicture/profilepic`);
   const ref = await storageRef.put(file);
   const url = await ref.ref.getDownloadURL();
 

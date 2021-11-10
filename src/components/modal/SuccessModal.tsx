@@ -14,9 +14,9 @@ export default function SuccessModal({ succMessage }: Props) {
 
   return (
     <>
-      {succMessage && (
+      {hideModal && (
         <div
-          className={clsx("absolute top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white z-10 left-1/2", hideModal && "hidden")}
+          className="absolute top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white z-10 left-1/2"
         >
           <div className="mt-3 text-center">
             <div
@@ -34,7 +34,7 @@ export default function SuccessModal({ succMessage }: Props) {
                   strokeLinejoin="round"
                   strokeWidth="2"
                   d="M5 13l4 4L19 7"
-                ></path>
+                />
               </svg>
             </div>
             <h3 className="text-lg leading-6 font-medium text-gray-900">Successful!</h3>

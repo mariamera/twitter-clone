@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react'
-import { useAuth } from '../context/AuthContext';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useAuth } from '../context/AuthContext';
 import ErrorModal from './modal/ErrorModal';
 
 export default function LogIn() {
@@ -25,7 +25,7 @@ export default function LogIn() {
       setLoading(true);
       await login(emailRef.current.value, passwordRef.current.value);
       setLoading(false);
-      router.push('/home');
+      void router.push('/home');
     }
     catch (error) {
       setError('Failed to log in!');
@@ -33,7 +33,7 @@ export default function LogIn() {
   }
 
   if (currentUser) {
-    router.push('/home');
+    void router.push('/home');
     return (<></>);
   }
 

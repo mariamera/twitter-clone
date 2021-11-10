@@ -8,14 +8,13 @@ type Props = {
 export default function ErrorModal({ errorMsg }: Props) {
   const [hideModal, setHideModal] = useState(false);
 
-  console.log("hideModal: ", hideModal);
   useEffect(() => {
     setHideModal(false);
   }, [errorMsg]);
 
   return (
     <>
-    { errorMsg && (<div className={clsx("m-[10px] bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative -translate-100", hideModal && "hidden")} role="alert">
+    { hideModal && (<div className="m-[10px] bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative -translate-100" role="alert">
       <strong className="font-bold">Holy smokes! Something Happned</strong>
       <span className="block sm:inline">{errorMsg}</span>
       <button className="absolute top-0 bottom-0 right-0 px-4 py-3" onClick={() => setHideModal(true)}>

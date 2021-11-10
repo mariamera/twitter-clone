@@ -1,30 +1,27 @@
 import clsx from 'clsx';
 import React, { ReactElement, useState, useEffect } from 'react'
 import Link from 'next/link';
-import setDate from '../../helpers/date';
-import { useAuth } from '../../context/AuthContext';
-import Avatar from '../Avatar/Avatar';
-import DeletedPost from './DeletedPost';
-
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import FavoriteBorderIcon from "@material-ui/icons/FavoriteBorder";
 import DeleteIcon from '@material-ui/icons/Delete';
 import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
-
-import { singlePostType, UserType } from "../../helpers/types";
-
-
+import setDate from '../../helpers/date';
 import {
   addLike,
   checkPostLikes,
   userDisLikedPost,
   checkPostComment
 } from '../../helpers/queries';
+import { useAuth } from '../../context/AuthContext';
+import { singlePostType, UserType } from "../../helpers/types";
+import Avatar from '../Avatar/Avatar';
+import DeletedPost from './DeletedPost';
+
 
 interface Props {
   user: UserType
   post: singlePostType
-  showParentText: Boolean
+  showParentText: boolean
 }
 
 export default function PostData({ user, post, showParentText = false }: Props): ReactElement {
@@ -35,16 +32,23 @@ export default function PostData({ user, post, showParentText = false }: Props):
   const [likeDocID, setLikeDocID] = useState("");
 
   function belongsToCurrentUser(currentUser: firebase.User | undefined, postAuthor: UserType) {
-    if (!currentUser) return false;
+    if (!currentUser) {
+      return false
+    }
 
-    return currentUser.uid === postAuthor!.uid;
+    return currentUser.uid === postAuthor.uid;
   }
 
   async function deleteThisPost() {
     try {
       await deletePost(post.postID);
-    } catch (e) {
-      console.log("error while deleting post: ", e);
+    } catch (error) {
+      let errorMessage = "Failed to do something exceptional";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
+      console.log(`error while deleting post:, ${errorMessage}`);
     }
   }
 
@@ -63,13 +67,16 @@ export default function PostData({ user, post, showParentText = false }: Props):
         setNumberOfLikes(prev => prev + 1);
       }
     } catch (error) {
-      console.log("error: ", error);
-      return;
+      let errorMessage = "Failed to do something exceptional";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      console.log(`error while changing like: ${errorMessage}`);
     }
   }
 
   useEffect(() => {
-    if (!Object.keys(post).length) return;
+    if (!Object.keys(post).length) { return; }
 
     const fetchData = async () => {
       try {
@@ -91,14 +98,19 @@ export default function PostData({ user, post, showParentText = false }: Props):
 
         setNumberOfComments(comments.size);
 
-      } catch (err) {
-        console.log("err: ", err);
+      } catch (error) {
+        let errorMessage = "Failed to do something exceptional";
+
+        if (error instanceof Error) {
+          errorMessage = error.message;
+        }
+        console.log(`something wrong happened: ${errorMessage}`);
 
         return;
       }
     };
 
-    fetchData();
+    void fetchData();
 
   }, [post]);
 
@@ -106,6 +118,10 @@ export default function PostData({ user, post, showParentText = false }: Props):
     return (
       <DeletedPost />
     )
+  }
+
+  if (!user.username) {
+    return <></>;
   }
 
   return (

@@ -1,9 +1,9 @@
 import clsx from 'clsx';
 import React, { useEffect, useState } from 'react'
-import PostData from './PostData';
 import { usePost } from '../../context/PostContext';
 
 import { singlePostType, PostType , UserType} from "../../helpers/types";
+import PostData from './PostData';
 
 type Props = {
   user: UserType,
@@ -33,14 +33,14 @@ export default function Post({ user, post, showParentText = false }: Props) {
       }
     };
 
-    fetchData();
+    void fetchData();
 
   }, [post]);
 
   return (
     <>
       <div className={clsx("relative flex flex-wrap w-full bg-white", showParentText && "mt-4 border border-gray-200 rounded-lg")}>
-        {parentTweet && parentTweet.user && parentTweet.post && showParentText && (
+        {parentTweet && showParentText && (
           <>
             <PostData user={parentTweet.user} post={parentTweet.post} showParentText={showParentText} />
             <div className="absolute h-1/2 top-16 border-l border-secondary transform translate-x-2 left-8" />

@@ -24,7 +24,7 @@ export default function Profile() {
     setError("")
     try {
       await logout();
-      router.push('/login');
+      void router.push('/login');
     } catch (error) {
       setError("Failed to log out")
     }
@@ -35,7 +35,7 @@ export default function Profile() {
     setError('');
 
     const files = event.target.files;
-  
+
     if (files && files.length === 1) {
       setLoading(true);
       const file = files[0];
@@ -64,7 +64,7 @@ export default function Profile() {
 
       return;
     }
-  
+
     try {
       await updateUserProfile(diplayNameRef.current.value);
       await resetPost();
@@ -87,7 +87,7 @@ export default function Profile() {
   }
 
   if (!currentUser) {
-    router.push('/login');
+    void router.push('/login');
     return (<></>);
   }
 

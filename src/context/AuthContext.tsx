@@ -44,8 +44,12 @@ export function AuthProvider({ children }: Props) {
 
   function signup(email: string, password: string, username: string) {
     return auth.createUserWithEmailAndPassword(email, password)
-      .then(({ user }) => { if (user) return updateUsername(username, user) })
-      .catch((error) => { throw new Error(error.message) })
+      .then(({ user }) => {
+        if (user) {
+          return updateUsername(username, user)
+        }
+      })
+      .catch((error: Error) => { throw new Error(error.message) })
   }
 
   async function updateUsername(username: string, createUser: firebase.User) {
@@ -61,7 +65,7 @@ export function AuthProvider({ children }: Props) {
   async function checkUsername(username: string) {
     return database.ref(`usernames/${username}`).once("value").then((snapshot) => {
       return snapshot.exists();
-    }).catch(error => { throw new Error(error.message) });
+    }).catch((error: Error) => { throw new Error(error.message) });
   }
 
   async function login(email: string, password: string) {
@@ -101,7 +105,9 @@ export function AuthProvider({ children }: Props) {
   }
 
   async function updateProfilePicture(photoURL: string) {
-    if (!currentUser) return;
+    if (!currentUser) {
+      return;
+    }
 
     try {
       await currentUser.updateProfile({
@@ -139,7 +145,7 @@ export function AuthProvider({ children }: Props) {
   async function deletePost(postId: string) {
     const doc = await db.collection("posts").where("postID", "==", postId).get();
 
-    if (doc.docs && doc.docs.length === 1) {
+    if (doc.docs.length === 1) {
       await doc.docs[0].ref.delete();
     }
 

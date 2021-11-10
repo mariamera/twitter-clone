@@ -2,14 +2,16 @@ import React, { useRef, useState } from 'react'
 import { useAuth } from '../context/AuthContext';
 
 export default function ForgotPassword() {
-  const emailRef = useRef<HTMLInputElement>(null);;
+  const emailRef = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState('');
   const { resetPassword } = useAuth();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
 
-    if (!emailRef.current) return;
+    if (!emailRef.current) {
+      return;
+    }
 
     try {
       setMessage('');
