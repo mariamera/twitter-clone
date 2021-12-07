@@ -1,46 +1,36 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link';
 import NewPost from '../modal/NewPost';
-import { findUserPosts, startFollowing, stopFollowing } from '../../helpers/queries';
+import { findUserPosts } from '../../helpers/queries';
 import { useAuth } from '../../context/AuthContext';
-import { usePost } from '../../context/PostContext';
 import { useFollowing } from '../../hooks/useFollowing';
 
 import Post from '../Posts/Post';
-import { db } from '../../helpers/firebase';
+import { UserType, singlePostType } from "../../helpers/types";
 import Avatar from '../Avatar/Avatar';
 import Followers from '../modal/Followers';
-
-import { UserType, singlePostType } from "../../helpers/types";
+import FollowButton from "./FollowButton";
 
 type Props = {
   user: UserType
 };
 
 export default function UserFeed({ user }: Props) {
+  console.log("user: ", user);
   const [post, setPost] = useState<Array<singlePostType>>([]);
   const [error, setError] = useState('');
-  const { resetPost } = usePost();
   const { currentUser } = useAuth();
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [followers, setFollowers] = useState(user.followers);
-  const [following, setFollowing] = useState(user.following);
-  const [connectionDocID, setFollowingDocID] = useState('');
+  const [followers, setFollowers] = useState(0);
+  const [following, setFollowing] = useState(0);
   const [openModal, setOpenModal] = useState(false);
   const [followersList, getFollowing] = useFollowing();
 
-  async function handleFollow() {
+  async function handleFollow(updateFollow: boolean) {
     setError('');
     try {
-      if (isFollowing) {
-        await stopFollowing(connectionDocID)
-        resetPost();
-        setIsFollowing(false);
+      if (updateFollow) {
         setFollowers(v => v ? v - 1 : 0);
       } else {
-        await startFollowing(currentUser!.uid, user.uid || '');
-        resetPost();
-        setIsFollowing(true)
         setFollowers(v => v ? v + 1 : 1);
       }
     } catch (e) {
@@ -55,25 +45,9 @@ export default function UserFeed({ user }: Props) {
     }
   }
 
-  async function checkFollowing() {
-    const result = await
-      db
-        .collection('follows')
-        .where('followerId', '==', currentUser!.uid)
-        .where('followeeId', '==', user.uid)
-        .get();
-
-    if (result.size === 1) {
-      setIsFollowing(true);
-      setFollowingDocID(result.docs[0].id);
-    }
-  }
-
   useEffect(() => {
     const fetchUserData = async () => {
       if (user.username) {
-        void checkFollowing();
-
         const getPost: singlePostType = await findUserPosts(user.username); //TODO: change Any to correct type
 
         setPost(getPost);
@@ -81,9 +55,12 @@ export default function UserFeed({ user }: Props) {
     }
 
     void fetchUserData();
+    setFollowers(user.followers);
+    setFollowing(user.following);
 
     return () => {
       setPost([]);
+      setOpenModal(false);
     };
   }, [user]);
 
@@ -101,7 +78,7 @@ export default function UserFeed({ user }: Props) {
           </div>
           <div className="w-full md:w-auto md:flex md:items-end md:flex-wrap md:ml-auto transform mt-auto ">
             <h2 className="text-center mx-auto w-full text-2xl font-mono font-semibold tracking-tight">{user.displayName}</h2>
-            <h3 className="text-center mx-auto w-full text-sm text-gray-400">{user.username}</h3>
+            <h3 className="text-center mx-auto w-full text-sm text-gray-400">@{user.username}</h3>
             <div className="w-full flex justify-evenly">
               <button>
                 <p className="font-semibold">{followers} <span className="text-gray-500 front-normal">followers</span></p>
@@ -112,14 +89,9 @@ export default function UserFeed({ user }: Props) {
             </div>
             <div>
               {currentUser!.uid !== user.uid ?
-                (<button
-                  className="block ml-auto mt-4 bg-secondary text-white hover:bg-third text-white font-bold py-2 px-4 rounded"
-                  onClick={handleFollow}
-                >
-                  {isFollowing ? 'Following' : 'Follow'}
-                </button>) :
+              (<FollowButton onClick={handleFollow} user={user} />) :
                 (
-                  <Link href={`/profile`}>
+                  <Link href={`/settings`}>
                     <a
                       className="block ml-auto mt-4 bg-secondary text-white hover:bg-third text-white font-bold py-2 px-4 rounded"
                     >
@@ -132,7 +104,7 @@ export default function UserFeed({ user }: Props) {
           </div>
         </div>
         <div>
-          {post.map((p, index) => <Post key={index} user={user} post={post[index]} />)}
+          {post.map((p, index) => <Post key={index} user={user} post={p} />)}
         </div>
       </div>
       <NewPost />

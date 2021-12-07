@@ -27,9 +27,7 @@ export default function AddComment({ postID }: Props) {
   return (
     <div className={"relative mx-auto p-5 bg-white border-t"}>
       <div className="bg-white flex items-center">
-        <div className="">
           <Avatar altText="your current profile picture" userPhoto={currentUser!.photoURL} />
-        </div>
         <div className="flex-auto">
           <form
             onSubmit={postAnswer}

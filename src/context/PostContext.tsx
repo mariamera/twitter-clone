@@ -40,7 +40,6 @@ export function PostProvider({ children }: Props) {
   async function addFollow(newFollowindId: string) {
     setCurrentFollowing(prev => [...prev, newFollowindId]);
     await resetPost();
-
   }
 
   async function removeFollow(followindId: string) {

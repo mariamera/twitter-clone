@@ -128,7 +128,7 @@ export default function PostData({ user, post, showParentText = false }: Props):
     <div className={clsx("relative flex flex-wrap w-full p-4 hover:bg-gray-200", !showParentText && "border-t my-0")}>
       <div>
         <Link href={`/${user.username}`}>
-          <a>
+          <a className="z-10 relative block">
             <Avatar altText={`${user.username} profile picture`} userPhoto={user.photoURL} />
           </a>
         </Link>

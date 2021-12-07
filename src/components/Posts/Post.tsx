@@ -43,7 +43,7 @@ export default function Post({ user, post, showParentText = false }: Props) {
         {parentTweet && showParentText && (
           <>
             <PostData user={parentTweet.user} post={parentTweet.post} showParentText={showParentText} />
-            <div className="absolute h-1/2 top-16 border-l border-secondary transform translate-x-2 left-8" />
+            <div className="absolute h-1/2 top-4 border-l border-secondary transform translate-x-2 left-8 z-1" />
           </>)}
         <PostData user={user} post={post} showParentText={showParentText} />
       </div>

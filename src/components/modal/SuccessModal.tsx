@@ -9,7 +9,7 @@ export default function SuccessModal({ succMessage }: Props) {
   const [hideModal, setHideModal] = useState(false);
 
   useEffect(() => {
-    setHideModal(false);
+    setHideModal(succMessage.length ? true : false);
   }, [succMessage]);
 
   return (
@@ -44,7 +44,7 @@ export default function SuccessModal({ succMessage }: Props) {
               </p>
             </div>
             <div className="items-center px-4 py-3">
-              <button onClick={() => setHideModal(true)}
+              <button onClick={() => setHideModal(false)}
                 id="ok-btn"
                 className="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300"
               >
