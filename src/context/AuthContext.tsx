@@ -51,9 +51,6 @@ export function AuthProvider({ children }: Props) {
           return updateUsername(username, user);
         }
       })
-      .catch((error: Error) => {
-        throw new Error(error.message);
-      });
   }
 
   async function updateUsername(username: string, createUser: firebase.User) {
@@ -72,9 +69,6 @@ export function AuthProvider({ children }: Props) {
       .then((snapshot) => {
         return snapshot.exists();
       })
-      .catch((error: Error) => {
-        throw new Error(error.message);
-      });
   }
 
   async function login(email: string, password: string) {

@@ -57,6 +57,7 @@ export default function Signup() {
       }
 
       setError(errorMessage);
+      setLoading(false);
     }
   }
   return (

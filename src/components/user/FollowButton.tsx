@@ -1,4 +1,3 @@
-import clsx from "clsx";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { usePost } from "../../context/PostContext";
@@ -28,7 +27,7 @@ export default function FollowButton({ onClick, user }: Props) {
         setIsFollowing(true);
       }
 
-      resetPost();
+			await resetPost();
       if (onClick) {
         onClick(isFollowing);
 			}
