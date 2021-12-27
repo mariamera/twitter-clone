@@ -17,7 +17,9 @@ export default function FollowButton({ onClick, user }: Props) {
   const [isFollowing, setIsFollowing] = useState(false);
   const [connectionDocID, setFollowingDocID] = useState("");
 
-  async function handleFollow() {
+  async function handleFollow(e) {
+    e.preventDefault();
+
     try {
       if (isFollowing) {
         await stopFollowing(connectionDocID);
@@ -32,7 +34,7 @@ export default function FollowButton({ onClick, user }: Props) {
         onClick(isFollowing);
 			}
     } catch (e) {
-      console.log("something wrong happened"); //Fix This
+      console.log("something wrong happened: ", e); //Fix This
     }
   }
 

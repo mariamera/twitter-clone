@@ -2,7 +2,7 @@ import clsx from "clsx";
 import React, { useState, useEffect } from "react";
 import { findUserPosts, findUserLikePost } from "../../helpers/queries";
 import Post from "../Posts/Post";
-import { UserType } from "../../helpers/types";
+import { UserType, singlePostType } from "../../helpers/types";
 
 const TAB_LIST = [
   {
@@ -37,19 +37,17 @@ export default function Tabs({ user }: Props) {
 
   useEffect(() => {
     const fetchUserData = async () => {
+      let getPost: Array<singlePostType> = [];
 
-      if (user.username && !post[tabIndex].data.length ) {
-        console.log("----> post[tabIndex].data: ", post[tabIndex].data.length);
-
-        let getPost = [];
+      if (user.username && !post[tabIndex].data.length) {
         if (tabIndex === 0) {
           getPost = await findUserPosts(user.username); //TODO: change Any to correct type
         }
-        if (tabIndex === 1 ) {
+        if (tabIndex === 1) {
           getPost = await findUserPosts(user.username, true); //TODO: change Any to correct type
         }
 
-        if (tabIndex === 3 ) {
+        if (tabIndex === 3) {
           getPost = await findUserLikePost(user.uid); //TODO: change Any to correct type
         }
 
@@ -64,7 +62,6 @@ export default function Tabs({ user }: Props) {
     void fetchUserData();
   }, [tabIndex, user.uid, user.username]);
 
-  console.log("post: ", post);
   return (
     <div>
       <div>

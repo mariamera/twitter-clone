@@ -15,6 +15,8 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { singlePostType, UserType } from "../../helpers/types";
 import Avatar from "../Avatar/Avatar";
+import { logError } from "../../helpers/utils";
+import { usePostInfo } from "../../hooks/usePostInfo";
 import DeletedPost from "./DeletedPost";
 
 interface Props {
@@ -23,25 +25,14 @@ interface Props {
   showParentText: boolean;
 }
 
-function logError(error: any) {
-  let errorMessage = "Failed to do something exceptional";
-
-  if (error instanceof Error) {
-    errorMessage = error.message;
-  }
-  return `error while changing like: ${errorMessage}`;
-}
-
 export default function PostData({
   user,
   post,
   showParentText = false,
 }: Props): ReactElement {
   const { currentUser, deletePost } = useAuth();
-  const [isLiked, setIsLiked] = useState(false);
-  const [numberOfLikes, setNumberOfLikes] = useState(0);
+  const [isLiked, numLikes, docId, dispatch] = usePostInfo(post.postID);
   const [numberOfComments, setNumberOfComments] = useState(0);
-  const [likeDocID, setLikeDocID] = useState("");
 
   function belongsToCurrentUser(
     currentUser: firebase.User | undefined,
@@ -64,18 +55,30 @@ export default function PostData({
 
   async function manageLike() {
     try {
-      let id = "";
       if (isLiked) {
-        await userDisLikedPost(likeDocID);
+        await userDisLikedPost(docId);
+        dispatch({
+          type: "updateLike",
+          payload: {
+            isLiked: false,
+            numLikes: numLikes ? numLikes - 1 : 0,
+            docId: "",
+          },
+        });
       } else {
         const like = await addLike(post.postID, currentUser!.uid);
         const likeInfo = await like.get();
-        id = likeInfo.id;
-      }
+        const id = likeInfo.id;
 
-      setLikeDocID(id);
-      setNumberOfLikes((prev) => (isLiked ? prev - 1 : prev + 1));
-      setIsLiked((v) => !v);
+        dispatch({
+          type: "updateLike",
+          payload: {
+            isLiked: true,
+            numLikes: numLikes ? numLikes + 1 : 1,
+            docId: id,
+          },
+        });
+      }
     } catch (error) {
       logError(error);
     }
@@ -88,20 +91,7 @@ export default function PostData({
 
     const fetchData = async () => {
       try {
-        const like = await checkPostLikes(post.postID);
-        const likeDocs = like.docs[0];
-        setNumberOfLikes(like.size);
-        setLikeDocID(likeDocs.id);
-
-        const checkLike = like.docs.find((val) => {
-          const user = val.data();
-          return user.userid === currentUser!.uid;
-        });
-
-        setIsLiked(!!checkLike);
-
         const comments = await checkPostComment(post.postID);
-
         setNumberOfComments(comments.size);
       } catch (error) {
         logError(error);
@@ -161,7 +151,7 @@ export default function PostData({
             disabled={!currentUser}
             className="text-secondary flex mx-2"
           >
-            <span className="pr-2">{numberOfLikes}</span>
+            <span className="pr-2">{numLikes}</span>
             {isLiked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
           </button>
           {belongsToCurrentUser(currentUser, user) && (
