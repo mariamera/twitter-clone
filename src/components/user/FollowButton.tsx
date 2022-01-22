@@ -17,8 +17,10 @@ export default function FollowButton({ onClick, user }: Props) {
   const [isFollowing, setIsFollowing] = useState(false);
   const [connectionDocID, setFollowingDocID] = useState("");
 
-  async function handleFollow(e) {
-    e.preventDefault();
+  async function handleFollow(e: React.MouseEvent<HTMLElement> | undefined) {
+    if (e) {
+      e.preventDefault();
+    }
 
     try {
       if (isFollowing) {
@@ -29,10 +31,10 @@ export default function FollowButton({ onClick, user }: Props) {
         setIsFollowing(true);
       }
 
-			await resetPost();
+      await resetPost();
       if (onClick) {
         onClick(isFollowing);
-			}
+      }
     } catch (e) {
       console.log("something wrong happened: ", e); //Fix This
     }

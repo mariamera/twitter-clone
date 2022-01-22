@@ -1,7 +1,8 @@
+import { ParsedUrlQuery } from 'querystring'
 import { FunctionComponent } from "react";
 import { GetStaticPaths, GetStaticProps } from "next";
-import { ParsedUrlQuery } from 'querystring'
 import Layout from '../../src/layouts/Layout'
+import MetaHead from '../../src/components/MetaHead'
 import UserFeed from '../../src/components/user/UserFeed';
 import { getUserInfoByUsername, getUserFollowers, getUserFollowing } from "../../src/helpers/queries";
 
@@ -16,10 +17,15 @@ interface IParams extends ParsedUrlQuery {
 }
 
 const UserPage: FunctionComponent<Props> = ({ data }) => {
+  const { username = ''} = data;
+
   return (
+    <>
+    <MetaHead title={`${username || ''}'s profile`} description={`${username || ''} profile`} />
     <Layout >
       <UserFeed user={data} />
     </Layout>
+    </>
   )
 }
 
@@ -34,7 +40,7 @@ export const getStaticPaths: GetStaticPaths = () => {
 export const getStaticProps: GetStaticProps = async (context) => {
   const { username } = context.params as IParams
   let data: {} = {};
-  let uid: String | null = '';
+  let uid: string | null = '';
   const Userquery = await getUserInfoByUsername(username);
 
   Userquery.forEach((child: firebase.database.DataSnapshot) => {

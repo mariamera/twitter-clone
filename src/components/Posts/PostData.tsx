@@ -155,7 +155,7 @@ export default function PostData({
             {isLiked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
           </button>
           {belongsToCurrentUser(currentUser, user) && (
-            <button className="absolute top-4 right-4" onClick={deleteThisPost}>
+            <button className="absolute top-4 right-4" aria-label="delete post" onClick={deleteThisPost}>
               {" "}
               <DeleteIcon />{" "}
             </button>
