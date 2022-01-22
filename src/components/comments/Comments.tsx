@@ -40,7 +40,7 @@ export default function Comments({ postID }: Props) {
 
   return (
     <div className={"relative mx-auto p-5 bg-white"}>
-      {comments.map((p, index) => <Post key={index} user={p.user} post={p.post} />)}
+      {comments.map((p, index) => <Post key={p.post.postID} user={p.user} post={p.post} />)}
     </div>
   )
 }

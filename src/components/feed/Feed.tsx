@@ -37,7 +37,7 @@ export default function Feed() {
       <div className="w-full relative bg-primary pt-8">
         <div className="w-3/4 mx-auto">
           <AddPost />
-          {posts.map((post: PostType, index: number) => <Post key={index} user={post.user} post={post.post} showParentText />)}
+          {posts.map((post: PostType) => <Post key={post.post.postID} user={post.user} post={post.post} showParentText />)}
         </div>
         {loading && (
           <div className="flex justify-center">

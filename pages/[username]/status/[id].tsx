@@ -44,7 +44,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
   const doc = await getSinglePost(id);
   const user = await getUserInfoByUsername(username);
-  let data = {
+  const data = {
     user: {},
     post: {}
   };

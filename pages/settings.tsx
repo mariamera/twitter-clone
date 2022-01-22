@@ -2,7 +2,7 @@ import { FunctionComponent } from "react";
 import Profile from '../src/components/Profile/Profile';
 import Layout from '../src/layouts/Layout';
 
-const Home: FunctionComponent = () => {
+const Settings: FunctionComponent = () => {
 
   return (
     <Layout>
@@ -12,4 +12,4 @@ const Home: FunctionComponent = () => {
 
 }
 
-export default Home;
+export default Settings;

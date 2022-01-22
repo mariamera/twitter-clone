@@ -29,6 +29,7 @@ export default function LogIn() {
     }
     catch (error) {
       setError('Failed to log in!');
+      setLoading(false);
     }
   }
 

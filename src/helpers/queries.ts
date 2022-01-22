@@ -3,9 +3,36 @@ import { POST_COLLECTION_NAME } from './constants';
 
 import { PostType, singlePostType } from "./types";
 
-async function findUserPosts(username: string) {
+async function fetchUserAndPost(posts: firebase.firestore.DocumentData) {
+  return await posts.docs.reduce(async (prevValue: Promise<PostType[]>, p) => {
+    const accum: PostType[] = await prevValue;
+    const currentPost = p.data() as singlePostType;
+
+    const userAlreadyFetched = accum.find((current: PostType) => current.user.uid === currentPost.uid);
+
+    if (userAlreadyFetched) {
+      accum.push({
+        user: userAlreadyFetched.user,
+        post: currentPost
+      })
+    } else {
+      const user = await getUserInfoById(currentPost.uid)
+
+      accum.push({
+        user: { uid: user.key, ...user.val() },
+        post: currentPost
+      })
+    }
+
+    return accum;
+
+  }, Promise.resolve([]));
+
+}
+async function findUserPosts(username: string, withReplies: boolean = false) {
   const uid = await database.ref(`/usernames/${username}`).once('value', (snapshot) => (snapshot));
-  const allPost = await db.collection(POST_COLLECTION_NAME).where("uid", "==", uid.val()).where("parentId", "==", null).orderBy('date', 'desc').get();
+  const allPost = withReplies ? await db.collection(POST_COLLECTION_NAME).where("uid", "==", uid.val()).orderBy('date', 'desc').get() :
+  await db.collection(POST_COLLECTION_NAME).where("uid", "==", uid.val()).where("parentId", "==", null).orderBy('date', 'desc').get();
 
   return allPost.docs.map(p => ({ ...p.data() }));
 }
@@ -17,29 +44,7 @@ async function getAllPost(followerList: string[], pageSize: number, offsetDoc?: 
     : await db.collection(POST_COLLECTION_NAME).where("uid", "in", followerList).orderBy('date', 'desc').limit(pageSize).get();
 
   if (posts.size) {
-    postsArray = await posts.docs.reduce(async (prevValue: Promise<PostType[]>, p) => {
-      const accum: PostType[] = await prevValue;
-      const currentPost = p.data() as singlePostType;
-
-      const userAlreadyFetched = accum.find((current: PostType) => current.user.uid === currentPost.uid);
-
-      if (userAlreadyFetched) {
-        accum.push({
-          user: userAlreadyFetched.user,
-          post: currentPost
-        })
-      } else {
-        const user = await getUserInfoById(currentPost.uid)
-
-        accum.push({
-          user: { uid: user.key, ...user.val() },
-          post: currentPost
-        })
-      }
-
-      return accum;
-
-    }, Promise.resolve([]));
+    postsArray = fetchUserAndPost(posts);
   }
 
   return postsArray;
@@ -108,6 +113,22 @@ function userDisLikedPost(likeId: string) {
   return db.collection('likes').doc(likeId).delete();
 }
 
+async function findUserLikePost(uid: string) {
+  let postsArray: Array<PostType> = [];
+
+  const ids= await db.collection('likes').where("userid", "==", uid).get();
+  const podsIds = ids.docs.map(p => ( p.data().postId));
+  const postBatch = podsIds.slice(0, 10); //Todo: Update to use offset and loadmore
+
+  const posts =  await db.collection(POST_COLLECTION_NAME).where('postID', 'in', postBatch).get();
+
+  if (posts.size) {
+    postsArray = await fetchUserAndPost(posts);
+  }
+
+  return postsArray;
+}
+
 function stopFollowing(connectionId: string) {
   return db.collection('follows').doc(connectionId).delete();
 }
@@ -138,6 +159,7 @@ export {
   subscribePost,
   getSinglePost,
   addLike,
+  findUserLikePost,
   checkPostLikes,
   userDisLikedPost,
   userLikedPost,
