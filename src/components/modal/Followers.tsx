@@ -9,8 +9,9 @@ type Props = {
 };
 
 export default function Followers({ userList, isOpen, onClick }: Props) {
+  console.log("userList: ", userList);
   return (
-    <DefaultModal isOpen={isOpen} onClick={onClick}>
+    <DefaultModal>
       {userList.map((user) => (
         <UserIcon key={user.email} user={user} />
       ))}

@@ -6,6 +6,7 @@ This is a personal project developed to learn about NextJS.
 - Typescript 
 - Tailwind
 - firebase
+
 ## Getting Started
 
 First, run the development server:
@@ -18,6 +19,21 @@ yarn dev
 
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+### Variables needed for the project
+
+Create a `.env.local` file on the root of the project and provide your firebase keys following the format:
+
+```
+API_KEY=
+AUTH_DOMAIN=
+DATABASE_URL=
+PROJECT_ID=
+STORAGE_BUCKET=
+MESSAGING_SENDER_ID=
+APP_ID=
+MEASUREMENT_ID=
+```
 
 ## Deploy on Vercel
 
