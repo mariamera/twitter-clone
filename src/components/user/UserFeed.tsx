@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import ReactLoading from "react-loading";
 import NewPost from "../modal/NewPost";
 import { useAuth } from "../../context/AuthContext";
 import { useFollowing } from "../../hooks/useFollowing";
-
 import { UserType } from "../../helpers/types";
 import Avatar from "../Avatar/Avatar";
-import Followers from "../modal/Followers";
+import DefaultModal from "../modal/DefaultModal";
+import UserIcon from "../user/UserIcon";
 import FollowButton from "./FollowButton";
 import Tabs from "./Tabs";
 
@@ -19,7 +20,6 @@ export default function UserFeed({ user }: Props) {
   const { currentUser } = useAuth();
   const [followers, setFollowers] = useState(0);
   const [following, setFollowing] = useState(0);
-  const [openModal, setOpenModal] = useState(false);
   const [followersList, getFollowing] = useFollowing();
 
   async function handleFollow(updateFollow: boolean) {
@@ -38,17 +38,13 @@ export default function UserFeed({ user }: Props) {
   function openFollowersModal() {
     if (user.uid) {
       getFollowing(user.uid);
-      setOpenModal(true);
     }
   }
 
   useEffect(() => {
     setFollowers(user.followers);
     setFollowing(user.following);
-
-    return () => {
-      setOpenModal(false);
-    };
+  
   }, [user]);
 
   if (!user.username) {
@@ -78,15 +74,27 @@ export default function UserFeed({ user }: Props) {
               <button>
                 <p className="font-semibold">
                   {followers}{" "}
-                  <span className="text-gray-500 front-normal">followers</span>
+                  <span className="text-gray-500 font-normal">followers</span>
                 </p>
               </button>
-              <button onClick={openFollowersModal}>
-                <p className="font-semibold">
-                  {following}{" "}
-                  <span className="text-gray-500 front-normal">following</span>
-                </p>
-              </button>
+              <p className="text-gray-500 font-normal" onClick={openFollowersModal}>
+                <span className="font-semibold text-black">{following}{" "}</span>
+                <DefaultModal title={"following"} current={user.uid}>
+                  {followersList.length ? (
+                    followersList.map((user) => (
+                      <UserIcon key={user.email} user={user} />
+                    ))
+                  ) : (
+                    <ReactLoading
+                      className="mx-auto"
+                      type={"spin"}
+                      color={"#000"}
+                      height={"20%"}
+                      width={"20%"}
+                    />
+                  )}
+                </DefaultModal>
+              </p>
             </div>
             <div>
               {currentUser!.uid !== user.uid ? (
@@ -98,18 +106,12 @@ export default function UserFeed({ user }: Props) {
                   </a>
                 </Link>
               )}
-
             </div>
           </div>
         </div>
         <Tabs user={user} />
       </div>
       <NewPost />
-      <Followers
-        userList={followersList}
-        isOpen={openModal}
-        onClick={() => setOpenModal(false)}
-      />
     </div>
   );
 }

@@ -2,7 +2,13 @@ import { useReducer, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { checkPostLikes } from "../helpers/queries";
 
-const initialState = {
+interface stateType {
+  isLiked: boolean;
+  numLikes: number;
+  docId: string;
+}
+
+const initialState : stateType = {
   isLiked: false,
   numLikes: 0,
   docId: "",
@@ -16,12 +22,15 @@ const postInfoReducer = (state, action) => {
       isLiked: action.payload.isLiked,
       numLikes: action.payload.numLikes,
       docId: action.payload.docId,
-    };
+    } as stateType;
   }
   return state;
 };
 export const usePostInfo = (postId: string) => {
-  const [state, dispatch] = useReducer(postInfoReducer, initialState);
+  const [state, dispatch]: [stateType, any] = useReducer(
+    postInfoReducer,
+    initialState
+  );
   const { currentUser } = useAuth();
 
   useEffect(() => {
@@ -29,7 +38,6 @@ export const usePostInfo = (postId: string) => {
       try {
         const like = await checkPostLikes(postId);
         const likeDocs = like.docs[0];
-        if (!likeDocs) return;
 
         const checkLike = like.docs.find((val) => {
           const user = val.data();
