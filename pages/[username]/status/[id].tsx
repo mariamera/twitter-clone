@@ -52,7 +52,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
   user.forEach(child => data['user'] = child.val());
   doc.forEach(d => data['post'] = d.data());
 
-  if (!Object.keys(!data['post']).length) {
+  if (!Object.keys(data['post']).length) {
     return {
       notFound: true,
     }
