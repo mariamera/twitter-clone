@@ -42,9 +42,8 @@ export default function UserFeed({ user }: Props) {
   }
 
   useEffect(() => {
-    setFollowers(user.followers);
-    setFollowing(user.following);
-  
+    setFollowers(() => user.followers || 0);
+    setFollowing(() => user.following || 0);
   }, [user]);
 
   if (!user.username) {
@@ -77,8 +76,11 @@ export default function UserFeed({ user }: Props) {
                   <span className="text-gray-500 font-normal">followers</span>
                 </p>
               </button>
-              <p className="text-gray-500 font-normal" onClick={openFollowersModal}>
-                <span className="font-semibold text-black">{following}{" "}</span>
+              <p
+                className="text-gray-500 font-normal"
+                onClick={openFollowersModal}
+              >
+                <span className="font-semibold text-black">{following} </span>
                 <DefaultModal title={"following"} current={user.uid}>
                   {followersList.length ? (
                     followersList.map((user) => (

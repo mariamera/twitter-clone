@@ -2,35 +2,38 @@ import { useReducer, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { checkPostLikes } from "../helpers/queries";
 
-interface stateType {
-  isLiked: boolean;
+type stateType = {
+  isLiked: boolean | undefined;
   numLikes: number;
-  docId: string;
-}
+  docId: string | null;
+};
 
-const initialState : stateType = {
+const initialState = {
   isLiked: false,
   numLikes: 0,
   docId: "",
-};
+} as stateType;
 
 const UPDATE_LIKE = "updateLike";
 
-const postInfoReducer = (state, action) => {
+const postInfoReducer = (
+  state: any,
+  action: {
+    type: string;
+    payload: stateType;
+  }
+) => {
   if (action.type === UPDATE_LIKE) {
     return {
       isLiked: action.payload.isLiked,
       numLikes: action.payload.numLikes,
       docId: action.payload.docId,
-    } as stateType;
+    };
   }
   return state;
 };
 export const usePostInfo = (postId: string) => {
-  const [state, dispatch]: [stateType, any] = useReducer(
-    postInfoReducer,
-    initialState
-  );
+  const [state, dispatch] = useReducer(postInfoReducer, initialState);
   const { currentUser } = useAuth();
 
   useEffect(() => {
@@ -38,6 +41,10 @@ export const usePostInfo = (postId: string) => {
       try {
         const like = await checkPostLikes(postId);
         const likeDocs = like.docs[0];
+
+        if (!Object.keys(likeDocs).length) {
+          return;
+        }
 
         const checkLike = like.docs.find((val) => {
           const user = val.data();
@@ -49,7 +56,7 @@ export const usePostInfo = (postId: string) => {
           payload: {
             isLiked: checkLike && checkLike.exists,
             numLikes: like.size,
-            docId: likeDocs.id,
+            docId: likeDocs.id || null,
           },
         });
       } catch (error) {
@@ -62,5 +69,10 @@ export const usePostInfo = (postId: string) => {
     }
   }, [postId, currentUser]);
 
-  return [state.isLiked, state.numLikes, state.docId, dispatch];
+  return [state.isLiked, state.numLikes, state.docId, dispatch] as [
+    boolean,
+    number,
+    string,
+    any
+  ];
 };

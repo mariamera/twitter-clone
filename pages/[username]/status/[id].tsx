@@ -1,5 +1,5 @@
-import { FunctionComponent } from "react";
 import { ParsedUrlQuery } from 'querystring'
+import { FunctionComponent } from "react";
 import { GetStaticPaths, GetStaticProps } from "next";
 import { getSinglePost, getUserInfoByUsername } from '../../../src/helpers/queries';
 import Layout from '../../../src/layouts/Layout';
@@ -52,7 +52,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
   user.forEach(child => data['user'] = child.val());
   doc.forEach(d => data['post'] = d.data());
 
-  if (!data || !data['post']) {
+  if (!Object.keys(!data['post']).length) {
     return {
       notFound: true,
     }

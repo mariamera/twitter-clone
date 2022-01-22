@@ -1,11 +1,11 @@
+import { Fragment, useState, useEffect, ReactElement } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useState, useEffect } from "react";
 import Image from "next/image";
 
 type Props = {
   children?: React.ReactNode;
-  title: string | Element;
-  current: string | null;
+  title: string | ReactElement<any, any>;
+  current: string | null | undefined;
 };
 
 export default function DefaultModal({ children, title, current }: Props) {
@@ -27,7 +27,7 @@ export default function DefaultModal({ children, title, current }: Props) {
 
   return (
     <>
-      <button type="button" onClick={openModal}>
+      <button type="button" aria-label="" onClick={openModal}>
         {title}
       </button>
 
