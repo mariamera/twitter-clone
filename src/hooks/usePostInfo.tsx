@@ -40,9 +40,9 @@ export const usePostInfo = (postId: string) => {
     const fetchData = async () => {
       try {
         const like = await checkPostLikes(postId);
-        const likeDocs = like.docs[0];
+        const likeDocs = like.docs[0] || {};
 
-        if (!Object.keys(likeDocs).length) {
+        if (!likeDocs.id) {
           return;
         }
 

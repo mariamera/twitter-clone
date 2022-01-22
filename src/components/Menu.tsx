@@ -14,11 +14,13 @@ export default function Menu() {
   useEffect(() => {
     const fetchUserData = async () => {
       const userInformationRes = await getUserInfoById(currentUser?.uid);
-      const userInformation = userInformationRes.val();
+      if (userInformationRes) {
+        const userInformation = userInformationRes.val();
 
-      if (userInformation && userInformation.username) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        setUserName(userInformation.username);
+        if (userInformation && userInformation.username) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+          setUserName(userInformation.username);
+        }
       }
     };
 

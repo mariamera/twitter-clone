@@ -11,10 +11,14 @@ export const useFollowing = (): [firebase.User[], (uid: string) => void] => {
 
     const cfl = await Promise.all(currentFollowerList.map(async data => {
       const followeeData = await getUserInfoById(data.followeeId as string);
-      return {
-        ...followeeData.val(),
-        uid: followeeData.key
-      };
+      if( followeeData) {
+        return {
+          ...followeeData.val(),
+          uid: followeeData.key
+        };
+      } 
+
+      return {}
     }));
 
     setFollowersList(cfl);

@@ -87,10 +87,12 @@ export function PostProvider({ children }: Props) {
         const parentPostData = parentPost.docs[0].data();
         if (parentPostData.uid) {
           const user = await getUserInfoById(parentPostData.uid as string);
-          return {
-            post: parentPostData,
-            user: { uid: user.key, ...user.val() },
-          } as PostType;
+          if (user) {
+            return {
+              post: parentPostData,
+              user: { uid: user.key, ...user.val() },
+            } as PostType;
+          }
         }
       }
     }
@@ -139,9 +141,16 @@ export function PostProvider({ children }: Props) {
               snap.docs.map(async (doc) => {
                 const info = doc.data();
                 const user = await getUserInfoById(info.uid as string);
+                if (user) {
+                  return {
+                    user: { uid: user.key, ...user.val() },
+                    post: info,
+                  } as PostType;
+                }
+
                 return {
-                  user: { uid: user.key, ...user.val() },
-                  post: info,
+                  post: {},
+                  user: {},
                 } as PostType;
               })
             );

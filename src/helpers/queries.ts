@@ -25,7 +25,7 @@ async function fetchUserAndPost(posts: firebase.firestore.DocumentData) {
         const user = await getUserInfoById(currentPost.uid);
 
         accum.push({
-          user: { uid: user.key, ...user.val() },
+          user: user ? { uid: user.key, ...user.val() } : {},
           post: currentPost,
         });
       }
@@ -208,7 +208,7 @@ async function getUserInfoByUsername(username: string) {
 async function getUserInfoById(uid: string | undefined) {
   return uid
     ? await database.ref(`users/${uid}`).once("value", (snapshot) => snapshot)
-    : [];
+    : null;
 }
 
 export {
